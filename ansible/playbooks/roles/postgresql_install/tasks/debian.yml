@@ -1,0 +1,35 @@
+# Install PostgreSQL on Debian/Ubuntu from PGDG repository
+---
+- name: Install prerequisite packages
+  apt:
+    name:
+      - python3-debian
+      - gnupg2
+      - python3-psycopg2
+      - acl
+    state: present
+    update_cache: true
+
+- name: Add PostgreSQL APT repository
+  deb822_repository:
+    name: pgdg
+    types: deb
+    uris: https://apt.postgresql.org/pub/repos/apt
+    suites: "{{ ansible_distribution_release }}-pgdg"
+    components: main
+    signed_by: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Install PostgreSQL packages
+  apt:
+    name:
+      - "postgresql-{{ postgresql_version }}"
+      - "postgresql-client-{{ postgresql_version }}"
+      - "postgresql-contrib-{{ postgresql_version }}"
+    state: present
+    update_cache: true
+
+- name: Set PostgreSQL data directory path
+  set_fact:
+    postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
+    postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"

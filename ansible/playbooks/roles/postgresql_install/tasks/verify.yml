@@ -1,0 +1,32 @@
+# Verify PostgreSQL installation is correct
+---
+- name: Check PostgreSQL version
+  command: "psql --version"
+  register: pg_version
+  changed_when: false
+
+- name: Display installed version
+  debug:
+    msg: "{{ pg_version.stdout }}"
+
+- name: Verify PostgreSQL is accepting connections
+  become: true
+  become_user: postgres
+  command: "psql -c 'SELECT version();'"
+  register: pg_connection
+  changed_when: false
+
+- name: Display server version
+  debug:
+    msg: "{{ pg_connection.stdout }}"
+
+- name: Check PostgreSQL service status
+  systemd:
+    name: "{{ postgresql_service_name }}"
+  register: pg_service
+
+- name: Confirm service is active
+  assert:
+    that:
+      - pg_service.status.ActiveState == "active"
+    fail_msg: "PostgreSQL service is not running"
