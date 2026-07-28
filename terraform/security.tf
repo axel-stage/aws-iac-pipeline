@@ -1,0 +1,157 @@
+###############################################################################
+# ssh key
+
+resource "tls_private_key" "ansible" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "ansible" {
+  key_name   = "${var.project}-${var.environment}-ansible-key"
+  public_key = tls_private_key.ansible.public_key_openssh
+}
+
+resource "local_sensitive_file" "private_key" {
+  content         = tls_private_key.ansible.private_key_pem
+  filename        = "../${path.module}/ansible/keys/ansible-key.pem"
+  file_permission = "0600"
+}
+
+###############################################################################
+# security groups
+
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.this.id
+
+  ingress {
+    description = "Allow all internal TCP and UDP"
+    self        = true
+    protocol    = -1
+    from_port   = 0
+    to_port     = 0
+  }
+
+  egress {
+    description = "Allow all external TCP and UDP"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project}-${var.environment}-default-sg"
+  }
+}
+
+resource "aws_security_group" "dbserver" {
+  name        = "${var.project}-${var.environment}-dbserver-sg"
+  description = "Security group for dbserver instance"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    description = "Allow PostgreSQL from my IP"
+    from_port   = var.postgres_port
+    to_port     = var.postgres_port
+    protocol    = "tcp"
+    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+  }
+
+  ingress {
+    description = "Allow SSH from my IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+  }
+
+  ingress {
+    description = "Allow all ICMP (ping, traceroute, ...) from my IP"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+  }
+
+  egress {
+    description = "Allow all external TCP and UDP"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.project}-${var.environment}-dbserver-sg"
+  }
+}
+
+###############################################################################
+# bucket policies
+
+resource "aws_s3_bucket_policy" "secure" {
+  bucket = aws_s3_bucket.dbserver.id
+  policy = data.aws_iam_policy_document.enforce_ssl.json
+}
+
+data "aws_iam_policy_document" "enforce_ssl" {
+  # Deny any request not using SSL
+  statement {
+    sid    = "EnforceSSLOnly"
+    effect = "Deny"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions = ["s3:*"]
+
+    resources = [
+      aws_s3_bucket.dbserver.arn,
+      "${aws_s3_bucket.dbserver.arn}/*",
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:PrincipalIsAWSService"
+      values   = ["false"]
+    }
+  }
+
+  # Deny TLS versions below 1.2
+  statement {
+    sid    = "EnforceTLS12"
+    effect = "Deny"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions = ["s3:*"]
+
+    resources = [
+      aws_s3_bucket.dbserver.arn,
+      "${aws_s3_bucket.dbserver.arn}/*",
+    ]
+
+    condition {
+      test     = "NumericLessThan"
+      variable = "s3:TlsVersion"
+      values   = ["1.2"]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:PrincipalIsAWSService"
+      values   = ["false"]
+    }
+  }
+}

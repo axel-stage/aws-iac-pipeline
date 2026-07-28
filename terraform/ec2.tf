@@ -1,0 +1,30 @@
+###############################################################################
+# ec2
+
+resource "aws_iam_instance_profile" "dbserver" {
+  name = "${var.project}-${var.environment}-dbserver-profile"
+  role = aws_iam_role.dbserver.id
+}
+
+resource "aws_instance" "dbserver" {
+  ami                         = data.aws_ami.ubuntu_noble_2404.id
+  subnet_id                   = aws_subnet.public_az_a.id
+  security_groups             = [aws_security_group.dbserver.id]
+  iam_instance_profile        = aws_iam_instance_profile.dbserver.id
+  key_name                    = aws_key_pair.ansible.key_name
+  instance_type               = "t3.medium"
+  associate_public_ip_address = true
+  monitoring                  = true
+
+  root_block_device {
+    volume_size           = 16
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
+
+  tags = {
+    Name          = "${var.project}-${var.environment}-dbserver-instance"
+    Role          = "dbserver"
+    Configuration = "Ansible"
+  }
+}
