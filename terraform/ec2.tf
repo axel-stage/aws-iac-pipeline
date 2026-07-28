@@ -1,35 +1,16 @@
 ###############################################################################
-# ssh key
-
-resource "tls_private_key" "ansible" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "ansible" {
-  key_name   = "${var.project}-${var.environment}-ansible-key"
-  public_key = tls_private_key.ansible.public_key_openssh
-}
-
-resource "local_sensitive_file" "private_key" {
-  content         = tls_private_key.ansible.private_key_pem
-  filename        = "../${path.module}/ansible/keys/ansible-key.pem"
-  file_permission = "0600"
-}
-
-###############################################################################
 # ec2
 
-resource "aws_iam_instance_profile" "ubuntu" {
-  name = "${var.project}-${var.environment}-ubuntu-profile"
-  role = aws_iam_role.ubuntu.id
+resource "aws_iam_instance_profile" "dbserver" {
+  name = "${var.project}-${var.environment}-dbserver-profile"
+  role = aws_iam_role.dbserver.id
 }
 
-resource "aws_instance" "ubuntu" {
-  ami                         = data.aws_ami.ubuntu.id
+resource "aws_instance" "dbserver" {
+  ami                         = data.aws_ami.ubuntu_noble_2404.id
   subnet_id                   = aws_subnet.public_az_a.id
-  security_groups             = [aws_security_group.ubuntu.id]
-  iam_instance_profile        = aws_iam_instance_profile.ubuntu.id
+  security_groups             = [aws_security_group.dbserver.id]
+  iam_instance_profile        = aws_iam_instance_profile.dbserver.id
   key_name                    = aws_key_pair.ansible.key_name
   instance_type               = "t3.medium"
   associate_public_ip_address = true
@@ -42,8 +23,8 @@ resource "aws_instance" "ubuntu" {
   }
 
   tags = {
-    Name = "${var.project}-${var.environment}-ubuntu-instance"
-    Role = "db-server"
+    Name          = "${var.project}-${var.environment}-dbserver-instance"
+    Role          = "dbserver"
     Configuration = "Ansible"
   }
 }

@@ -14,12 +14,12 @@ data "aws_ami" "amazon_linux" {
   owners      = ["amazon"]
 
   filter {
-    name = "name"
+    name   = "name"
     values = ["al2023-ami-*-x86_64"]
   }
 }
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ubuntu_noble_2404" {
   most_recent = true
   owners      = ["amazon"] # ["099720109477"]
   name_regex  = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04"

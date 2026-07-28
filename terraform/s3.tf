@@ -15,20 +15,20 @@ locals {
 ###############################################################################
 # s3 bucket
 
-resource "aws_s3_bucket" "postgres" {
-  bucket        = "${var.project}-${var.environment}-postgres-${local.suffix}"
+resource "aws_s3_bucket" "dbserver" {
+  bucket        = "${var.project}-${var.environment}-dbserver-${local.suffix}"
   force_destroy = var.force_destroy_bucket
 }
 
-resource "aws_s3_bucket_versioning" "postgres" {
-  bucket = aws_s3_bucket.postgres.id
+resource "aws_s3_bucket_versioning" "dbserver" {
+  bucket = aws_s3_bucket.dbserver.id
   versioning_configuration {
     status = var.bucket_versioning
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "postgres" {
-  bucket = aws_s3_bucket.postgres.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "dbserver" {
+  bucket = aws_s3_bucket.dbserver.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -37,8 +37,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "postgres" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "postgres" {
-  bucket = aws_s3_bucket.postgres.id
+resource "aws_s3_bucket_public_access_block" "dbserver" {
+  bucket = aws_s3_bucket.dbserver.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -46,8 +46,8 @@ resource "aws_s3_bucket_public_access_block" "postgres" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_ownership_controls" "postgres" {
-  bucket = aws_s3_bucket.postgres.id
+resource "aws_s3_bucket_ownership_controls" "dbserver" {
+  bucket = aws_s3_bucket.dbserver.id
 
   rule {
     object_ownership = "BucketOwnerEnforced"
@@ -58,6 +58,6 @@ resource "aws_s3_bucket_ownership_controls" "postgres" {
 # s3 key
 
 resource "aws_s3_object" "backup" {
-  bucket = aws_s3_bucket.postgres.id
+  bucket = aws_s3_bucket.dbserver.id
   key    = "backup/"
 }

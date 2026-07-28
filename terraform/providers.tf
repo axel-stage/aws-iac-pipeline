@@ -17,7 +17,7 @@ terraform {
       version = "~> 2.9"
     }
     external = {
-      source = "hashicorp/external"
+      source  = "hashicorp/external"
       version = "~> 2.4"
     }
     tls = {
@@ -34,9 +34,9 @@ provider "aws" {
   shared_credentials_files = ["/home/xl/.aws/credentials"]
   default_tags {
     tags = {
-      Provisioned = "Terraform"
-      Project     = var.project
-      Environment = var.environment
+      Project      = var.project
+      Environment  = var.environment
+      Provisioning = var.iac_provisioning
     }
   }
 }

@@ -3,6 +3,17 @@
 ###############################################################################
 # project
 
+variable "region" {
+  description = "Primary AWS region"
+  type        = string
+  default     = "eu-central-1"
+
+  validation {
+    condition     = var.region == "eu-central-1"
+    error_message = "region must be 'eu-central-1'"
+  }
+}
+
 variable "project" {
   description = "The Project name"
   type        = string
@@ -13,7 +24,6 @@ variable "project" {
 }
 
 variable "environment" {
-
   description = "Environment name (dev, test, prod)"
   type        = string
   default     = "dev"
@@ -23,14 +33,23 @@ variable "environment" {
   }
 }
 
-variable "region" {
-  description = "Primary AWS region"
+variable "iac_provisioning" {
+  description = "Infrastructure provisioning tool (Terraform, OpenTofu)"
   type        = string
-  default     = "eu-central-1"
-
+  default     = "Terraform"
   validation {
-    condition     = var.region == "eu-central-1"
-    error_message = "region must be 'eu-central-1'"
+    condition     = contains(["Terraform", "OpenTofu"], var.iac_provisioning)
+    error_message = "IaC tool must be one of: Terraform, OpenTofu."
+  }
+}
+
+variable "iac_configuration" {
+  description = "Infrastructure configuration tool (Ansible)"
+  type        = string
+  default     = "Ansible"
+  validation {
+    condition     = var.iac_configuration == "Ansible"
+    error_message = "IaC tool must be: Ansible."
   }
 }
 
@@ -46,15 +65,6 @@ variable "vpc_cidr_block" {
 variable "public_subnets" {
   description = "AWS VPC public subnets"
   type        = list(string)
-}
-
-###############################################################################
-# iam
-
-variable "lambda_role_name" {
-  description = "Name of the IAM role"
-  type        = string
-  default     = "lambda-role"
 }
 
 ###############################################################################
@@ -77,25 +87,24 @@ variable "bucket_versioning" {
 }
 
 ###############################################################################
-# ports
+# postgres
+
+variable "postgres_version" {
+  description = "PostgreSQL DMBS version"
+  type        = string
+  default     = "16.3"
+}
 
 variable "postgres_port" {
   description = "Port for PostgreSQL"
-  type        = number
-  default     = 5432
-}
-
-
-variable "ssh_port" {
-  description = "Port for SSH"
-  type        = number
-  default     = 22
+  type        = string
+  default     = "5432"
 }
 
 ###############################################################################
 # secrets
 
-variable "postgres_password" {
-  type      = string
-  sensitive = true
-}
+# variable "secret" {
+#   type      = string
+#   sensitive = true
+# }
