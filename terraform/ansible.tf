@@ -7,7 +7,7 @@ resource "local_file" "ansible_inventory_yaml" {
       vars = {
         region                       = var.region
         project                      = var.project
-        environment                  = var.environment
+        #environment                  = var.environment
         ansible_user                 = "ubuntu"
         ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "${path.module}/../ansible/keys/ansible-key.pem"
@@ -25,7 +25,7 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            postgresql_version = var.postgres_version
+            #postgresql_version = var.postgres_version
             postgres_port     = var.postgres_port
           }
         }

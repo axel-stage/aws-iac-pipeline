@@ -46,3 +46,6 @@
     host: 127.0.0.1
     delay: 2
     timeout: 30
+
+- name: Verify installation
+  include_tasks: "verify.yml"

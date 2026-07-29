@@ -5,8 +5,8 @@
   become: true
   roles:
   - role: postgresql_install
-    vars:
-      postgresql_version: "16"
-      postgresql_port: 5432
-      postgresql_listen_addresses: "0.0.0.0"
-      postgresql_max_connections: 200
+    # vars:
+    #   postgresql_version: "18"
+    #   postgresql_port: 5432
+    #   postgresql_listen_addresses: "*"
+    #   postgresql_max_connections: 200

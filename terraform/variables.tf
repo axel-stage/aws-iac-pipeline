@@ -89,11 +89,11 @@ variable "bucket_versioning" {
 ###############################################################################
 # postgres
 
-variable "postgres_version" {
-  description = "PostgreSQL DMBS version"
-  type        = string
-  default     = "16.3"
-}
+# variable "postgres_version" {
+#   description = "PostgreSQL DMBS version"
+#   type        = string
+#   default     = "16.3"
+# }
 
 variable "postgres_port" {
   description = "Port for PostgreSQL"
