@@ -1,0 +1,51 @@
+# PostgreSQL configuration managed by Ansible
+# Do not edit manually - changes will be overwritten
+
+# Connection Settings
+listen_addresses = '{{ postgresql_listen_addresses }}'
+port = {{ postgresql_port }}
+max_connections = {{ postgresql_max_connections }}
+superuser_reserved_connections = {{ postgresql_superuser_reserved_connections }}
+
+# Memory
+shared_buffers = {{ postgresql_shared_buffers }}
+effective_cache_size = {{ postgresql_effective_cache_size }}
+work_mem = {{ postgresql_work_mem }}
+maintenance_work_mem = {{ postgresql_maintenance_work_mem }}
+
+# WAL
+wal_buffers = {{ postgresql_wal_buffers }}
+min_wal_size = {{ postgresql_min_wal_size }}
+max_wal_size = {{ postgresql_max_wal_size }}
+checkpoint_completion_target = {{ postgresql_checkpoint_completion_target }}
+
+# Query Planner
+random_page_cost = {{ postgresql_random_page_cost }}
+effective_io_concurrency = {{ postgresql_effective_io_concurrency }}
+default_statistics_target = {{ postgresql_default_statistics_target }}
+
+# Logging
+log_destination = '{{ postgresql_log_destination }}'
+logging_collector = {{ postgresql_logging_collector }}
+log_directory = '{{ postgresql_log_directory }}'
+log_filename = '{{ postgresql_log_filename }}'
+log_min_duration_statement = {{ postgresql_log_min_duration_statement }}
+log_line_prefix = '{{ postgresql_log_line_prefix }}'
+log_checkpoints = {{ postgresql_log_checkpoints }}
+log_connections = {{ postgresql_log_connections }}
+log_disconnections = {{ postgresql_log_disconnections }}
+log_lock_waits = {{ postgresql_log_lock_waits }}
+log_temp_files = {{ postgresql_log_temp_files }}
+
+# Locale
+lc_messages = 'en_US.UTF-8'
+lc_monetary = 'en_US.UTF-8'
+lc_numeric = 'en_US.UTF-8'
+lc_time = 'en_US.UTF-8'
+
+{% if postgresql_extra_config is defined %}
+# Additional custom settings
+{% for key, value in postgresql_extra_config.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endif %}

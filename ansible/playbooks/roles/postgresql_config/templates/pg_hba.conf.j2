@@ -1,0 +1,7 @@
+# PostgreSQL Client Authentication Configuration
+# Managed by Ansible - do not edit manually
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+{% for entry in postgresql_hba_entries %}
+{{ entry.type }}    {{ entry.database }}    {{ entry.user }}    {{ entry.address | default('') }}    {{ entry.method }}
+{% endfor %}
