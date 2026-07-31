@@ -1,0 +1,55 @@
+# Route to OS-specific installation tasks
+---
+- name: Include Pretest tasks
+  include_tasks: pretest.yml
+
+- name: Include OS-specific tasks
+  include_tasks: "{{ ansible_os_family | lower }}.yml"
+
+- name: Configure PostgreSQL listen address
+  lineinfile:
+    path: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "^#?listen_addresses\\s*="
+    line: "listen_addresses = '{{ postgresql_listen_addresses }}'"
+  notify: restart postgresql
+
+- name: Configure PostgreSQL port
+  lineinfile:
+    path: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "^#?port\\s*="
+    line: "port = {{ postgresql_port }}"
+  notify: restart postgresql
+
+- name: Configure PostgreSQL max connections
+  lineinfile:
+    path: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "^#?max_connections\\s*="
+    line: "max_connections = {{ postgresql_max_connections }}"
+  notify: restart postgresql
+
+- name: Configure PostgreSQL shared buffers
+  lineinfile:
+    path: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "^#?shared_buffers\\s*="
+    line: "shared_buffers = {{ postgresql_shared_buffers }}"
+  notify: restart postgresql
+
+- name: Ensure PostgreSQL service is running
+  systemd:
+    name: "{{ postgresql_service_name }}"
+    state: started
+    enabled: true
+
+- name: Apply PostgreSQL configuration changes before checking the port
+  meta: flush_handlers
+
+- name: Wait for PostgreSQL to accept connections
+  wait_for:
+    port: "{{ postgresql_port }}"
+    host: 127.0.0.1
+    delay: 2
+    timeout: 30
+
+- name: Test PostgreSQL installation
+  include_tasks: test.yml
+...

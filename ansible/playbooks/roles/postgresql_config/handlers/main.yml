@@ -1,0 +1,11 @@
+# Handlers for PostgreSQL service management
+---
+- name: restart postgresql
+  systemd:
+    name: "{{ postgresql_service_name }}"
+    state: restarted
+
+- name: reload postgresql
+  systemd:
+    name: "{{ postgresql_service_name }}"
+    state: reloaded

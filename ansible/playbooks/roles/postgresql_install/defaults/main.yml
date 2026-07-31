@@ -1,0 +1,10 @@
+# Default variables for PostgreSQL installation
+---
+postgresql_version: "18"
+postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
+postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
+postgresql_bin_dir: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
+postgresql_service_name: "postgresql"
+postgresql_listen_addresses: "*"
+postgresql_max_connections: 100
+postgresql_shared_buffers: "128MB"

@@ -51,8 +51,8 @@ resource "aws_security_group" "dbserver" {
 
   ingress {
     description = "Allow PostgreSQL from my IP"
-    from_port   = var.postgres_port
-    to_port     = var.postgres_port
+    from_port   = var.postgresql_port
+    to_port     = var.postgresql_port
     protocol    = "tcp"
     cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
   }

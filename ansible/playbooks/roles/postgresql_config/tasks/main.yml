@@ -1,0 +1,50 @@
+# Apply PostgreSQL configuration files and restart if needed
+---
+- name: Include Pretest tasks
+  include_tasks: pretest.yml
+
+- name: Reset PostgreSQL default password
+  become: yes
+  become_method: sudo
+  become_user: postgres
+  postgresql_user:
+    db: postgres
+    name: "{{ postgresql_user }}"
+    password: "{{ postgresql_password }}"
+
+- name: Deploy pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_config_dir }}/pg_hba.conf"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: "0640"
+    backup: true
+  notify: restart postgresql
+
+- name: Apply PostgreSQL configuration
+  meta: flush_handlers
+
+- name: Deploy postgresql.conf
+  template:
+    src: postgresql.conf.j2
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: "0644"
+    backup: true
+  notify: restart postgresql
+
+- name: Reboot server
+  reboot:
+    msg: "Rebooting machine"
+
+- name: Ensure PostgreSQL service is running after reboot
+  systemd:
+    name: "{{ postgresql_service_name }}"
+    state: started
+    enabled: true
+
+- name: Test PostgreSQL configuration
+  include_tasks: test.yml
+...

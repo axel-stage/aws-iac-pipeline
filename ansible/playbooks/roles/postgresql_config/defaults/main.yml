@@ -1,0 +1,65 @@
+# Sensible defaults for PostgreSQL configuration
+---
+postgresql_version: "18"
+postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
+postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
+postgresql_bin_dir: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
+postgresql_service_name: "postgresql"
+
+# root
+postgresql_user: "postgres"
+postgresql_group: "postgres"
+postgresql_database: "postgres"
+postgresql_password: "gf#Mmqj*KyjGMwSupvddKfZusnV20a"
+
+# Connection settings
+postgresql_listen_addresses: "*"
+postgresql_port: 5432
+postgresql_max_connections: 103
+postgresql_superuser_reserved_connections: 3
+
+# Memory settings (tune based on available RAM)
+postgresql_shared_buffers: "256MB"
+postgresql_effective_cache_size: "768MB"
+postgresql_work_mem: "4MB"
+postgresql_maintenance_work_mem: "64MB"
+
+# WAL settings
+postgresql_wal_buffers: "16MB"
+postgresql_min_wal_size: "1GB"
+postgresql_max_wal_size: "4GB"
+postgresql_checkpoint_completion_target: 0.9
+
+# Query planner
+postgresql_random_page_cost: 1.1
+postgresql_effective_io_concurrency: 200
+postgresql_default_statistics_target: 100
+
+# Logging
+postgresql_log_destination: stderr
+postgresql_logging_collector: on
+postgresql_log_directory: log
+
+# pg_hba.conf entries
+postgresql_hba_entries:
+  - type: local
+    database: all
+    user: all
+    address: ''
+    method: peer
+  - type: host
+    database: all
+    user: all
+    address: '127.0.0.1/32'
+    method: scram-sha-256
+  - type: host
+    database: all
+    user: all
+    address: '::1/128'
+    method: scram-sha-256
+  - type: host
+    database: all
+    user: all
+    address: '{{ local_public_ip }}/32'
+    method: scram-sha-256
+...

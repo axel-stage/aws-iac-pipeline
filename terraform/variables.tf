@@ -68,6 +68,31 @@ variable "public_subnets" {
 }
 
 ###############################################################################
+# ec2
+
+variable "ec2_instance_type" {
+  description = "Type for EC2 instances"
+  type        = string
+  default     = "t3.micro"
+
+  validation {
+    condition     = contains(["t3.micro", "t3.small", "t3.medium", "t3.medium", "t3.large"], var.ec2_instance_type)
+    error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium, t3.medium, t3.large"
+  }
+}
+
+variable "ec2_instance_volume_size" {
+  description = "Volume size for EC2 instances"
+  type        = number
+  default     = 8
+
+  validation {
+    condition     = contains([8, 16, 24, 32], var.ec2_instance_volume_size)
+    error_message = "EC2 instance volume must be: 8, 16, 24, 32"
+  }
+}
+
+###############################################################################
 # s3
 
 variable "force_destroy_bucket" {
@@ -89,16 +114,10 @@ variable "bucket_versioning" {
 ###############################################################################
 # postgres
 
-variable "postgres_version" {
-  description = "PostgreSQL DMBS version"
-  type        = string
-  default     = "16.3"
-}
-
-variable "postgres_port" {
+variable "postgresql_port" {
   description = "Port for PostgreSQL"
-  type        = string
-  default     = "5432"
+  type        = number
+  default     = 5432
 }
 
 ###############################################################################

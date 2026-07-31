@@ -1,0 +1,10 @@
+# Configure PostgreSQL on database servers
+---
+- name: Configure PostgreSQL
+  hosts: dbserver
+  vars_files:
+    - ../group_vars/terraform_vars.yml
+  become: true
+  roles:
+  - role: postgresql_config
+...
