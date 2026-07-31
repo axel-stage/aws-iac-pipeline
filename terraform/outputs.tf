@@ -1,5 +1,5 @@
 ###############################################################################
-# s3
+# output
 
 output "s3_bucket_name" {
   description = "Name of the S3 bucket"
@@ -12,4 +12,9 @@ output "dbserver_ip" {
 
 output "dbserver_role_name" {
   value = aws_iam_role.dbserver.name
+}
+
+output "local_public_ip" {
+  description = "Public IPv4 of the client"
+  value = data.external.local_public_ip.result.ipv4
 }

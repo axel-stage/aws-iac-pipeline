@@ -5,9 +5,6 @@ resource "local_file" "ansible_inventory_yaml" {
   content = yamlencode({
     all = {
       vars = {
-        region                       = var.region
-        project                      = var.project
-        #environment                  = var.environment
         ansible_user                 = "ubuntu"
         ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "${path.module}/../ansible/keys/ansible-key.pem"
@@ -25,8 +22,8 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            #postgresql_version = var.postgres_version
-            postgres_port     = var.postgres_port
+            postgresql_port = var.postgresql_port
+            local_public_ip = data.external.local_public_ip.result.ipv4
           }
         }
       }
@@ -35,10 +32,15 @@ resource "local_file" "ansible_inventory_yaml" {
   filename = "${path.module}/../ansible/inventories/hosts.yml"
 }
 
-# resource "local_file" "ansible_vars" {
-#   content = yamlencode({
-#     environment = var.environment
-#     db_host     = aws_instance.dbserver.public_ip
-#   })
-#   filename = "${path.module}/../ansible/group_vars/all.yml"
-# }
+resource "local_file" "terraform_vars" {
+  content = <<EOYAML
+terraform:
+  region: ${var.region}
+  project: ${var.project}
+  environment: ${var.environment}
+  bucket_name: ${aws_s3_bucket.dbserver.bucket}
+  iac_provisioning: ${var.iac_provisioning}
+  iac_configuration: ${var.iac_configuration}
+EOYAML
+  filename = "${path.module}/../ansible/group_vars/terraform_vars.yml"
+}
