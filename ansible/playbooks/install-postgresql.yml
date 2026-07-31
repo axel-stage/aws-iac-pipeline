@@ -2,11 +2,9 @@
 ---
 - name: Install PostgreSQL
   hosts: dbserver
+  vars_files:
+    - ../group_vars/terraform_vars.yml
   become: true
   roles:
   - role: postgresql_install
-    # vars:
-    #   postgresql_version: "18"
-    #   postgresql_port: 5432
-    #   postgresql_listen_addresses: "*"
-    #   postgresql_max_connections: 200
+...

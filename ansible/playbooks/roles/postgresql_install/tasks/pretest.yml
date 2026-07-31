@@ -1,0 +1,31 @@
+# Testing if installation requirements are correct
+- name: Pretest validate terraform vars
+  assert:
+    that:
+      - terraform.region is defined
+      - terraform.region == "eu-central-1"
+      - terraform.project is defined
+      - terraform.project | length >= 3
+      - terraform.environment is defined
+      - terraform.environment in ["dev", "test", "prod"]
+    fail_msg: |+
+      Missing terraform variables usually defined in 'group_vars/terraform_vars.yml'
+    success_msg: |+
+      region: {{ terraform.region }}
+      project: {{ terraform.project }}
+      environment: {{ terraform.environment }}
+
+- name: Pretest validate host facts
+  assert:
+    that:
+      - ansible_host is defined
+      - ansible_os_family is defined
+      - ansible_os_family | lower in ["debian", "redhat"]
+      - postgresql_port is defined
+      - postgresql_port | int == 5432
+    fail_msg: |+
+      Missing host facts
+    success_msg: |+
+      ansible_host: {{ ansible_host }}
+      ansible_os_family: {{ ansible_os_family }}
+      postgresql_port: {{ postgresql_port }}

@@ -30,8 +30,3 @@
       - "postgresql-contrib-{{ postgresql_version }}"
     state: present
     update_cache: true
-
-- name: Set PostgreSQL data directory path
-  set_fact:
-    postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
-    postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"

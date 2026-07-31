@@ -1,5 +1,8 @@
 # Route to OS-specific installation tasks
 ---
+- name: Include Pretest tasks
+  include_tasks: pretest.yml
+
 - name: Include OS-specific tasks
   include_tasks: "{{ ansible_os_family | lower }}.yml"
 
@@ -47,5 +50,6 @@
     delay: 2
     timeout: 30
 
-- name: Verify installation
-  include_tasks: "verify.yml"
+- name: Test PostgreSQL installation
+  include_tasks: test.yml
+...

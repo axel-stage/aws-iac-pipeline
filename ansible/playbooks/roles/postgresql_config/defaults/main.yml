@@ -6,16 +6,16 @@ postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
 postgresql_bin_dir: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
 postgresql_service_name: "postgresql"
 
-# user settings
-postgresql_database: "postgres"
+# root
 postgresql_user: "postgres"
 postgresql_group: "postgres"
+postgresql_database: "postgres"
 postgresql_password: "gf#Mmqj*KyjGMwSupvddKfZusnV20a"
 
 # Connection settings
 postgresql_listen_addresses: "*"
 postgresql_port: 5432
-postgresql_max_connections: 100
+postgresql_max_connections: 103
 postgresql_superuser_reserved_connections: 3
 
 # Memory settings (tune based on available RAM)
@@ -36,37 +36,30 @@ postgresql_effective_io_concurrency: 200
 postgresql_default_statistics_target: 100
 
 # Logging
-postgresql_log_destination: "stderr"
-postgresql_logging_collector: "on"
-postgresql_log_directory: "log"
-postgresql_log_filename: "postgresql-%Y-%m-%d_%H%M%S.log"
-postgresql_log_min_duration_statement: 1000
-postgresql_log_line_prefix: "%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h "
-postgresql_log_checkpoints: "on"
-postgresql_log_connections: "on"
-postgresql_log_disconnections: "on"
-postgresql_log_lock_waits: "on"
-postgresql_log_temp_files: 0
+postgresql_log_destination: stderr
+postgresql_logging_collector: on
+postgresql_log_directory: log
 
 # pg_hba.conf entries
 postgresql_hba_entries:
   - type: local
     database: all
     user: all
-    address: ""
+    address: ''
     method: peer
   - type: host
     database: all
     user: all
-    address: "127.0.0.1/32"
+    address: '127.0.0.1/32'
     method: scram-sha-256
   - type: host
     database: all
     user: all
-    address: "::1/128"
+    address: '::1/128'
     method: scram-sha-256
   - type: host
     database: all
     user: all
-    address: "89.247.161.147/32"
+    address: '{{ local_public_ip }}/32'
     method: scram-sha-256
+...

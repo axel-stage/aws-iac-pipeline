@@ -70,7 +70,9 @@ ansible dbserver -i inventories/hosts.yml -m shell -a "sudo ls -la /var/log/post
 
 
 ansible dbserver -i inventories/hosts.yml -m shell -a "sudo tail -50 /var/log/postgresql/postgresql-18-main.log"
-ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /var/log/postgresql/postgresql-16-main.log"
+ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /var/log/postgresql/postgresql-18-main.log"
+
+ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /var/lib/postgresql/18/main/log/postgresql-2026-07-31_153353.log"
 
 # status
 ansible dbserver -i inventories/hosts.yml -m shell -a "sudo systemctl status postgresql"
@@ -92,6 +94,10 @@ ansible-playbook playbooks/install-postgresql.yml -i inventories/hosts.yml
 ansible-playbook playbooks/configure-postgresql.yml -i inventories/hosts.yml
 
 
+
+
+
+
 # Preview changes without applying (check mode)
 ansible-playbook playbooks/configure-postgresql.yml -i inventories/hosts.yml --check --diff
 
@@ -100,15 +106,17 @@ ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /etc/postgresql/
 # check pg_hba.conf
 ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /etc/postgresql/18/main/pg_hba.conf"
 
-ansible dbserver -i inventories/hosts.yml -m shell -a "sudo cat /etc/postgresql/18/main/pg_hba.conf.6560.2026-07-29@14:32:17~"
-
-
 
 
 ansible dbserver -i inventories/hosts.yml -m shell -a "sudo -u postgres psql -c \"SELECT CURRENT_DATE;\""
 
 #
-echo -n postgres | md5sum | head -c 32
+
+
+ansible dbserver -i inventories/hosts.yml -m shell -a "sudo -u postgres psql -t -c \"SELECT pg_reload_conf();\""
+ansible dbserver -i inventories/hosts.yml -m shell -a "sudo -u postgres psql -t -c \"SHOW shared_buffers;\""
+
 
 
 ansible dbserver -i inventories/hosts.yml -m shell -a "sudo -u postgres psql -h localhost -d postgres -U postgres"
+

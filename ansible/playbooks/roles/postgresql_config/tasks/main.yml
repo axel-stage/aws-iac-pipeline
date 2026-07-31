@@ -1,17 +1,7 @@
 # Apply PostgreSQL configuration files and restart if needed
 ---
-# - name: Set OS-specific variables
-#   set_fact:
-#     _pg_config_dir: "{{ postgresql_config_dir }}"
-#     _pg_service: "{{ 'postgresql' if ansible_os_family == 'Debian' else 'postgresql-' + postgresql_version }}"
-
-- name: Ensure PostgreSQL data directory exists.
-  file:
-    path: "{{ postgresql_data_dir }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
-    state: directory
-    mode: 0700
+- name: Include Pretest tasks
+  include_tasks: pretest.yml
 
 - name: Reset PostgreSQL default password
   become: yes
@@ -22,41 +12,39 @@
     name: "{{ postgresql_user }}"
     password: "{{ postgresql_password }}"
 
-# - name: Ensure PostgreSQL log directory exists.
-#   file:
-#     path: "{{ postgresql_effective_log_dir }}"
-#     owner: postgres
-#     group: postgres
-#     state: directory
-#     mode: 0700
-
-# - name: Deploy postgresql.conf
-#   template:
-#     src: postgresql.conf.j2
-#     dest: "{{ postgresql_config_dir }}/postgresql.conf"
-#     owner: "{{ postgresql_user }}"
-#     group: "{{ postgresql_group }}"
-#     mode: '0644'
-#     backup: true
-#   notify: restart postgresql
-
 - name: Deploy pg_hba.conf
   template:
     src: pg_hba.conf.j2
     dest: "{{ postgresql_config_dir }}/pg_hba.conf"
     owner: "{{ postgresql_user }}"
     group: "{{ postgresql_group }}"
-    mode: '0640'
+    mode: "0640"
     backup: true
-  notify: reload postgresql
+  notify: restart postgresql
 
-# - name: Check PostgreSQL cluster status
-#   become: true
-#   become_user: postgres
-#   command: "pg_lscluster {{ postgresql_version }} main"
-#   register: pg_cluster
-#   changed_when: false
-#   when: ansible_os_family == "Debian"
+- name: Apply PostgreSQL configuration
+  meta: flush_handlers
 
-- name: Verify installation
-  include_tasks: "verify.yml"
+- name: Deploy postgresql.conf
+  template:
+    src: postgresql.conf.j2
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_group }}"
+    mode: "0644"
+    backup: true
+  notify: restart postgresql
+
+- name: Reboot server
+  reboot:
+    msg: "Rebooting machine"
+
+- name: Ensure PostgreSQL service is running after reboot
+  systemd:
+    name: "{{ postgresql_service_name }}"
+    state: started
+    enabled: true
+
+- name: Test PostgreSQL configuration
+  include_tasks: test.yml
+...
