@@ -15,20 +15,20 @@ locals {
 ###############################################################################
 # s3 bucket
 
-resource "aws_s3_bucket" "dbserver" {
-  bucket        = "${var.project}-${var.environment}-dbserver-${local.suffix}"
+resource "aws_s3_bucket" "this" {
+  bucket        = "${var.project}-${var.environment}-${local.suffix}"
   force_destroy = var.force_destroy_bucket
 }
 
-resource "aws_s3_bucket_versioning" "dbserver" {
-  bucket = aws_s3_bucket.dbserver.id
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
   versioning_configuration {
     status = var.bucket_versioning
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "dbserver" {
-  bucket = aws_s3_bucket.dbserver.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -37,8 +37,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "dbserver" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "dbserver" {
-  bucket = aws_s3_bucket.dbserver.id
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.this.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -46,8 +46,8 @@ resource "aws_s3_bucket_public_access_block" "dbserver" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_ownership_controls" "dbserver" {
-  bucket = aws_s3_bucket.dbserver.id
+resource "aws_s3_bucket_ownership_controls" "this" {
+  bucket = aws_s3_bucket.this.id
 
   rule {
     object_ownership = "BucketOwnerEnforced"
@@ -57,7 +57,13 @@ resource "aws_s3_bucket_ownership_controls" "dbserver" {
 ###############################################################################
 # s3 key
 
-resource "aws_s3_object" "backup" {
-  bucket = aws_s3_bucket.dbserver.id
-  key    = "backup/"
+resource "aws_s3_object" "postgresql" {
+  bucket = aws_s3_bucket.this.id
+  key    = "postgresql/"
+}
+
+
+resource "aws_s3_object" "airflow" {
+  bucket = aws_s3_bucket.this.id
+  key    = "airflow/"
 }

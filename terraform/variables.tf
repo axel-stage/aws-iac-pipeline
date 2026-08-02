@@ -70,27 +70,50 @@ variable "public_subnets" {
 ###############################################################################
 # ec2
 
-variable "ec2_instance_type" {
-  description = "Type for EC2 instances"
+variable "dbserver_instance_type" {
+  description = "Instance type for dbserver instances"
+  type        = string
+  default     = "t3.small"
+
+  validation {
+    condition     = contains(["t3.small", "t3.medium", "t3.large"], var.dbserver_instance_type)
+    error_message = "EC2 instance type must be: t3.small, t3.medium, t3.large"
+  }
+}
+
+variable "dbserver_instance_volume_size" {
+  description = "Volume size for dbserver instances"
+  type        = number
+  default     = 16
+
+  validation {
+    condition     = contains([16, 24, 32], var.dbserver_instance_volume_size)
+    error_message = "EC2 instance volume must be: 16, 24, 32"
+  }
+}
+
+variable "appserver_instance_type" {
+  description = "Instance type for appserver instances"
   type        = string
   default     = "t3.micro"
 
   validation {
-    condition     = contains(["t3.micro", "t3.small", "t3.medium", "t3.medium", "t3.large"], var.ec2_instance_type)
-    error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium, t3.medium, t3.large"
+    condition     = contains(["t3.micro", "t3.small", "t3.medium"], var.appserver_instance_type)
+    error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium"
   }
 }
 
-variable "ec2_instance_volume_size" {
-  description = "Volume size for EC2 instances"
+variable "appserver_instance_volume_size" {
+  description = "Volume size for appserver instances"
   type        = number
   default     = 8
 
   validation {
-    condition     = contains([8, 16, 24, 32], var.ec2_instance_volume_size)
-    error_message = "EC2 instance volume must be: 8, 16, 24, 32"
+    condition     = contains([8, 16], var.appserver_instance_volume_size)
+    error_message = "EC2 instance volume must be: 8, 16"
   }
 }
+
 
 ###############################################################################
 # s3

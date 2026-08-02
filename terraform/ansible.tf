@@ -26,6 +26,21 @@ resource "local_file" "ansible_inventory_yaml" {
             local_public_ip = data.external.local_public_ip.result.ipv4
           }
         }
+        appserver = {
+          hosts = {
+            (aws_instance.appserver.tags.Name) = {
+              ansible_host = aws_instance.appserver.public_ip
+              instance_id  = aws_instance.appserver.id
+              public_ip    = aws_instance.appserver.public_ip
+              private_ip   = aws_instance.appserver.private_ip
+              az           = aws_instance.appserver.availability_zone
+            }
+          }
+          vars = {
+            postgresql_port = var.postgresql_port
+            local_public_ip = data.external.local_public_ip.result.ipv4
+          }
+        }
       }
     }
   })
@@ -33,12 +48,12 @@ resource "local_file" "ansible_inventory_yaml" {
 }
 
 resource "local_file" "terraform_vars" {
-  content = <<EOYAML
+  content  = <<EOYAML
 terraform:
   region: ${var.region}
   project: ${var.project}
   environment: ${var.environment}
-  bucket_name: ${aws_s3_bucket.dbserver.bucket}
+  bucket_name: ${aws_s3_bucket.this.bucket}
   iac_provisioning: ${var.iac_provisioning}
   iac_configuration: ${var.iac_configuration}
 EOYAML
