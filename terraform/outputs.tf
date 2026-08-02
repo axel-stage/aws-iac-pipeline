@@ -11,7 +11,7 @@ output "dbserver_ip" {
 }
 
 output "dbserver_role_name" {
-  value = aws_iam_role.dbserver.name
+  value = aws_iam_role.ec2.name
 }
 
 output "local_public_ip" {

@@ -3,7 +3,7 @@
 
 resource "aws_iam_instance_profile" "dbserver" {
   name = "${var.project}-${var.environment}-dbserver-profile"
-  role = aws_iam_role.dbserver.id
+  role = aws_iam_role.ec2.id
 }
 
 resource "aws_instance" "dbserver" {
@@ -28,7 +28,7 @@ resource "aws_instance" "dbserver" {
 
   tags = {
     Name          = "${var.project}-${var.environment}-dbserver-instance"
-    Role          = "dbserver"
+    Type          = "dbserver"
     Configuration = "Ansible"
   }
 }
