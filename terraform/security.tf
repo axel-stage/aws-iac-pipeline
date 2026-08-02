@@ -90,7 +90,7 @@ resource "aws_security_group" "dbserver" {
 # bucket policies
 
 resource "aws_s3_bucket_policy" "secure" {
-  bucket = aws_s3_bucket.dbserver.id
+  bucket = aws_s3_bucket.this.id
   policy = data.aws_iam_policy_document.enforce_ssl.json
 }
 
@@ -108,8 +108,8 @@ data "aws_iam_policy_document" "enforce_ssl" {
     actions = ["s3:*"]
 
     resources = [
-      aws_s3_bucket.dbserver.arn,
-      "${aws_s3_bucket.dbserver.arn}/*",
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*",
     ]
 
     condition {
@@ -138,8 +138,8 @@ data "aws_iam_policy_document" "enforce_ssl" {
     actions = ["s3:*"]
 
     resources = [
-      aws_s3_bucket.dbserver.arn,
-      "${aws_s3_bucket.dbserver.arn}/*",
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*",
     ]
 
     condition {

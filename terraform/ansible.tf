@@ -38,7 +38,7 @@ terraform:
   region: ${var.region}
   project: ${var.project}
   environment: ${var.environment}
-  bucket_name: ${aws_s3_bucket.dbserver.bucket}
+  bucket_name: ${aws_s3_bucket.this.bucket}
   iac_provisioning: ${var.iac_provisioning}
   iac_configuration: ${var.iac_configuration}
 EOYAML
