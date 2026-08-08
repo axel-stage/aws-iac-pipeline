@@ -144,6 +144,20 @@ variable "postgresql_port" {
 }
 
 ###############################################################################
+# ansible
+
+variable "ansible_port" {
+  description = "Port for Ansible to SSH to"
+  type        = number
+  default     = 22
+}
+
+variable "ansible_user" {
+  description = "Name of the Ansible user"
+  type = string
+}
+
+###############################################################################
 # secrets
 
 # variable "secret" {

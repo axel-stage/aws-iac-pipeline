@@ -1,0 +1,82 @@
+# Main flow
+---
+- name: Create airflow group
+  group:
+    name: "{{ airflow_group }}"
+    state: present
+
+- name: Create airflow user
+  user:
+    name: "{{ airflow_user }}"
+    group: "{{ airflow_group }}"
+    shell: "/bin/bash"
+
+- name: Install required packages
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+      - libpq-dev
+      - build-essential
+      - git
+      - acl
+    state: present
+    update_cache: yes
+
+- name: Create Python virtual environment
+  become: true
+  become_user: airflow
+  command:
+    cmd: python3 -m venv {{ airflow_venv }}
+    creates: "{{ airflow_venv }}/bin/python3"
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    state: latest
+    virtualenv: "{{ airflow_venv }}"
+
+- name: Install Python Packages
+  pip:
+    virtualenv: "{{ airflow_venv }}"
+    name:
+      - psycopg2-binary
+      - asyncpg
+
+- name: Install Apache Airflow
+  pip:
+    virtualenv: "{{ airflow_venv }}"
+    extra_args: >
+      --constraint
+      https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ python_version }}.txt
+    name:
+      - apache-airflow-core
+      - "apache-airflow=={{ airflow_version }}"
+
+- name: Install Airflow providers
+  pip:
+    virtualenv: "{{ airflow_venv }}"
+    name:
+      - apache-airflow-providers-common-io
+      - apache-airflow-providers-common-sql
+      - apache-airflow-providers-ftp
+      - apache-airflow-providers-sftp
+      - apache-airflow-providers-http
+      - apache-airflow-providers-grpc
+      - apache-airflow-providers-imap
+      - apache-airflow-providers-ssh
+      - apache-airflow-providers-odbc
+      - apache-airflow-providers-redis
+      - apache-airflow-providers-postgres
+      - apache-airflow-providers-celery
+      # - apache-airflow-providers-elasticsearch
+      # - apache-airflow-providers-cncf-kubernetes
+      # - apache-airflow-providers-docker
+      # - apache-airflow-providers-amazon
+      # - apache-airflow-providers-apache-spark
+      # - apache-airflow-providers-hashicorp
+
+- name: Test Airflow installation
+  include_tasks: test.yml
+...

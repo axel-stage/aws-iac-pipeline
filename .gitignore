@@ -13,7 +13,7 @@ env.bak
 .env*
 
 # generated
-ansible/inventories/hosts.yml
+ansible/inventory/hosts.yml
 ansible/group_vars/terraform_vars.yml
 
 

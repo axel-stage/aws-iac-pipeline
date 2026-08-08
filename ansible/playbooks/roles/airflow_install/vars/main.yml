@@ -1,0 +1,9 @@
+# Default variables for airflow installation
+---
+airflow_user: airflow
+airflow_group: airflow
+airflow_home: "/opt/airflow"
+airflow_venv: "{{ airflow_home }}/.venv"
+airflow_version: "3.1.0"
+python_version: "3.12"
+...

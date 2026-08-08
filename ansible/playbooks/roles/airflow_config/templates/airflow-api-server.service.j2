@@ -1,0 +1,14 @@
+[Unit]
+Description=Airflow API Server
+After=network.target
+
+[Service]
+User={{ airflow_user }}
+Group={{ airflow_group }}
+EnvironmentFile={{ airflow_home }}/.env.airflow
+ExecStart={{ airflow_venv }}/bin/airflow api-server --host 0.0.0.0 --port 8080
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

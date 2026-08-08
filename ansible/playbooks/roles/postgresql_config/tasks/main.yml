@@ -1,4 +1,4 @@
-# Apply PostgreSQL configuration files and restart if needed
+# Apply PostgreSQL configuration
 ---
 - name: Include Pretest tasks
   include_tasks: pretest.yml

@@ -15,5 +15,8 @@ appserver_instance_volume_size = 8
 # s3
 force_destroy_bucket = true
 bucket_versioning    = "Disabled"
-# security
+# postgres
 postgresql_port = 5432
+# ansible
+ansible_port = 22
+ansible_user = "ubuntu"

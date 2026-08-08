@@ -5,7 +5,10 @@ resource "local_file" "ansible_inventory_yaml" {
   content = yamlencode({
     all = {
       vars = {
-        ansible_user                 = "ubuntu"
+        ansible_connection           = "smart"
+        ansible_port                 = var.ansible_port
+        ansible_user                 = var.ansible_user
+        ansible_shell_type           = "sh"
         ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "${path.module}/../ansible/keys/ansible-key.pem"
         ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
@@ -37,14 +40,13 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            postgresql_port = var.postgresql_port
             local_public_ip = data.external.local_public_ip.result.ipv4
           }
         }
       }
     }
   })
-  filename = "${path.module}/../ansible/inventories/hosts.yml"
+  filename = "${path.module}/../ansible/inventory/hosts.yml"
 }
 
 resource "local_file" "terraform_vars" {

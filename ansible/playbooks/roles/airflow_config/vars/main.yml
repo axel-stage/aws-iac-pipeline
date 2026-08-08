@@ -1,0 +1,13 @@
+airflow_home: "/opt/airflow"
+airflow_venv: "{{ airflow_home }}/.venv"
+airflow_dags: "{{ airflow_home }}/dags"
+airflow_logs: "{{ airflow_home }}/logs"
+
+root_user: root
+
+airflow_user: airflow
+airflow_group: airflow
+
+postgres_database: airflow
+postgres_user: airflow
+postgres_password: 'airflow'

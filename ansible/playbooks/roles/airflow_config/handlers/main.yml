@@ -1,0 +1,21 @@
+---
+- name: Reload systemd
+  become: true
+  become_user: "{{ root_user }}"
+  systemd:
+    daemon_reload: true
+
+- name: Restart Airflow API Server
+  become: true
+  become_user: "{{ root_user }}"
+  systemd:
+    name: airflow-api-server
+    state: restarted
+
+- name: Restart Airflow Scheduler
+  become: true
+  become_user: "{{ root_user }}"
+  systemd:
+    name: airflow-scheduler
+    state: restarted
+...

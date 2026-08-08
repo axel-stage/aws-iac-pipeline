@@ -1,0 +1,28 @@
+- name: Get installed Airflow version
+  shell: |
+    source {{ airflow_venv }}/bin/activate
+    airflow version
+  args:
+    executable: /bin/bash
+  register: installed_airflow_version
+  changed_when: false
+
+# - name: Get installed Airflow version
+#   command: "{{ airflow_venv }}/bin/airflow version"
+#   register: installed_airflow_version
+#   changed_when: false
+
+- name: Show installed Airflow version
+  debug:
+    msg: "Installed Airflow version: {{ installed_airflow_version.stdout }}"
+
+- name: Test expected Airflow version
+  assert:
+    that:
+      - installed_airflow_version.stdout | trim == airflow_version
+    fail_msg: >-
+      Expected Airflow version {{ airflow_version }}, but found
+      {{ installed_airflow_version.stdout | trim }}
+    success_msg: >-
+      Expected Airflow version: {{ airflow_version }}
+      match installed version: {{ installed_airflow_version.stdout | trim }}
