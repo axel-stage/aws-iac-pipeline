@@ -1,16 +1,14 @@
 #!/bin/bash
 set -e
 
-ENVIRONNMENT=dev
-
 # load env vars
-source .env.${ENVIRONNMENT}
+source .env.psql
 
 # connect with SSL required
 # role: dbadmin
 export PGSSLMODE=require
 export PGPASSWORD=${DB_ADMIN_PASS}
-psql --host ${DB_HOST} --port ${DB_PORT} --dbname ${DB_NAME} --username ${DB_ADMIN_ROLE} --no-password
+psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --dbname ${DB_NAME} --username ${DB_ADMIN_ROLE} --no-password
 
 # connection settings
 \timing

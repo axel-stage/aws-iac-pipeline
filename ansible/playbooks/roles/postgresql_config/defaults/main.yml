@@ -6,15 +6,8 @@ postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
 postgresql_bin_dir: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
 postgresql_service_name: "postgresql"
 
-# root
-postgresql_user: "postgres"
-postgresql_group: "postgres"
-postgresql_database: "postgres"
-postgresql_password: "gf#Mmqj*KyjGMwSupvddKfZusnV20a"
-
 # Connection settings
 postgresql_listen_addresses: "*"
-postgresql_port: 5432
 postgresql_max_connections: 103
 postgresql_superuser_reserved_connections: 3
 
@@ -50,16 +43,11 @@ postgresql_hba_entries:
   - type: host
     database: all
     user: all
-    address: '127.0.0.1/32'
-    method: scram-sha-256
-  - type: host
-    database: all
-    user: all
     address: '::1/128'
     method: scram-sha-256
   - type: host
     database: all
     user: all
-    address: '{{ local_public_ip }}/32'
+    address: '0.0.0.0/0'
     method: scram-sha-256
 ...

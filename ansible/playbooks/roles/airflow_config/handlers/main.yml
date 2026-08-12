@@ -1,0 +1,36 @@
+---
+- name: Restart Airflow API server service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-api-server
+    state: restarted
+
+- name: Restart Airflow scheduler service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-scheduler
+    state: restarted
+
+- name: Restart Airflow worker service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-worker
+    state: restarted
+
+- name: Restart Airflow triggerer service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-triggerer
+    state: restarted
+
+- name: Restart Airflow dag processor service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-dag-processor
+    state: restarted
+...

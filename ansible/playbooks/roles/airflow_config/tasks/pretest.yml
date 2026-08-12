@@ -1,0 +1,62 @@
+# Tests
+---
+- name: Check Airflow installation
+  ansible.builtin.stat:
+    path: "{{ airflow_venv }}/bin/airflow"
+  register: airflow_binary
+
+- name: Test Airflow installation
+  ansible.builtin.assert:
+    that:
+      - airflow_binary.stat.exists
+      - airflow_binary.stat.executable
+    fail_msg: "Airflow executable was not found at {{ airflow_venv }}/bin/airflow."
+
+- name: Validate Airflow variables
+  ansible.builtin.assert:
+    that:
+      - airflow_user | length > 0
+      - airflow_group | length > 0
+      - airflow_home | length > 0
+      - airflow_venv | length > 0
+      - DB_HOST_PRIVATE | length > 0
+      - META_DB_NAME | length > 0
+      - META_DB_ROLE | length > 0
+      - META_DB_PASS | length > 0
+    fail_msg: "Required Airflow variables are missing or invalid."
+
+- name: Test PostgreSQL connectivity
+  ansible.builtin.command:
+    cmd: "{{ airflow_venv }}/bin/python"
+    stdin: |
+      import os
+      import psycopg2
+
+      conn = psycopg2.connect(
+          host=os.environ["PGHOST"],
+          dbname=os.environ["PGDATABASE"],
+          user=os.environ["PGUSER"],
+          password=os.environ["PGPASSWORD"],
+          port=os.environ["PGPORT"],
+          connect_timeout=10,
+      )
+      conn.close()
+  environment:
+    PGHOST: "{{ DB_HOST_PRIVATE }}"
+    PGDATABASE: "{{ META_DB_NAME }}"
+    PGUSER: "{{ META_DB_ROLE }}"
+    PGPASSWORD: "{{ META_DB_PASS }}"
+    PGPORT: "{{ DB_PORT }}"
+  register: postgres_connection
+  changed_when: false
+  no_log: true
+
+- name: Verify PostgreSQL connection
+  ansible.builtin.assert:
+    that:
+      - postgres_connection.rc == 0
+    success_msg: "PostgreSQL connection succeeded."
+    fail_msg: >-
+      PostgreSQL connection failed with return code
+      {{ postgres_connection.rc }}.
+...

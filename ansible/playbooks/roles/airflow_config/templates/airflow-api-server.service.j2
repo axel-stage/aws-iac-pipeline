@@ -1,0 +1,16 @@
+[Unit]
+Description=Airflow API Server
+After=network.target redis-server.service
+
+[Service]
+User={{ airflow_user }}
+Group={{ airflow_group }}
+EnvironmentFile={{ airflow_home }}/.env.airflow
+WorkingDirectory={{ airflow_home }}
+ExecStart={{ airflow_venv }}/bin/airflow api-server --host 0.0.0.0 --port {{ airflow_api_server_port }}
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

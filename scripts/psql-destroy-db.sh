@@ -10,7 +10,7 @@ source .env.${ENVIRONNMENT}
 # role: root
 export PGSSLMODE=require
 export PGPASSWORD=${DB_ROOT_PASS}
-psql --host ${DB_HOST} --port ${DB_PORT} --dbname ${DB_ROOT_NAME} --username ${DB_ROOT_ROLE} --no-password <<-EOSQL
+psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --dbname ${DB_ROOT_NAME} --username ${DB_ROOT_ROLE} --no-password <<-EOSQL
 
 \timing
 

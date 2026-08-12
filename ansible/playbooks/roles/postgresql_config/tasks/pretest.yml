@@ -3,8 +3,8 @@
 - name: Pretest PostgreSQL data directory exists.
   file:
     path: "{{ postgresql_data_dir }}"
-    owner: "{{ postgresql_user }}"
-    group: "{{ postgresql_group }}"
+    owner: "{{ DB_ROOT_ROLE }}"
+    group: "{{ DB_ROOT_ROLE }}"
     state: directory
     mode: 0700
 

@@ -61,7 +61,7 @@ listen_addresses = '{{ postgresql_listen_addresses }}'
 					# comma-separated list of addresses;
 					# defaults to 'localhost'; use '*' for all
 					# (change requires restart)
-port = {{ postgresql_port }}
+port = {{ DB_PORT }}
 max_connections = {{ postgresql_max_connections }}
 #reserved_connections = 0		# (change requires restart)
 superuser_reserved_connections = {{ postgresql_superuser_reserved_connections }}	# (change requires restart)

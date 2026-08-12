@@ -1,0 +1,24 @@
+- name: Get installed Airflow version
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      {{ airflow_venv }}/bin/airflow version
+    executable: /bin/bash
+  register: installed_airflow_version
+  changed_when: false
+
+- name: Show installed Airflow version
+  debug:
+    msg: "Installed Airflow version: {{ installed_airflow_version.stdout }}"
+
+- name: Test expected Airflow version
+  assert:
+    that:
+      - installed_airflow_version.stdout | trim == airflow_version
+    fail_msg: >-
+      Expected Airflow version {{ airflow_version }}, but found
+      {{ installed_airflow_version.stdout | trim }}
+    success_msg: >-
+      Expected Airflow version: {{ airflow_version }}
+      match installed version: {{ installed_airflow_version.stdout | trim }}

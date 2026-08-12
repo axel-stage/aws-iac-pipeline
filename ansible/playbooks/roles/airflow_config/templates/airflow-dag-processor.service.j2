@@ -1,0 +1,16 @@
+[Unit]
+Description=Airflow Dag Processor
+After=network.target redis-server.service
+
+[Service]
+User={{ airflow_user }}
+Group={{ airflow_group }}
+EnvironmentFile={{ airflow_home }}/.env.airflow
+WorkingDirectory={{ airflow_home }}
+ExecStart={{ airflow_venv }}/bin/airflow dag-processor
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

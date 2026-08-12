@@ -8,3 +8,4 @@ postgresql_service_name: "postgresql"
 postgresql_listen_addresses: "*"
 postgresql_max_connections: 100
 postgresql_shared_buffers: "128MB"
+...

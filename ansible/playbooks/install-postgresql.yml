@@ -6,5 +6,5 @@
     - ../group_vars/terraform_vars.yml
   become: true
   roles:
-  - role: postgresql_install
+    - role: postgresql_install
 ...

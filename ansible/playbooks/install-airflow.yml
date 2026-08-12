@@ -1,0 +1,9 @@
+# Install Airflow on application servers
+---
+- name: Install Airflow
+  hosts: appserver
+  vars_files:
+    - ../group_vars/terraform_vars.yml
+  roles:
+    - role: airflow_install
+...
