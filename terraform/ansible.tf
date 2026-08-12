@@ -25,8 +25,10 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            postgresql_port = var.postgresql_port
-            local_public_ip = data.external.local_public_ip.result.ipv4
+            DB_PORT         = var.postgresql_port
+            DB_ROOT_NAME    = var.db_root_name
+            DB_ROOT_ROLE    = var.db_root_role
+            DB_ROOT_PASS    = random_password.root.result
           }
         }
         appserver = {
@@ -40,7 +42,13 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            local_public_ip = data.external.local_public_ip.result.ipv4
+            DB_HOST_PRIVATE = aws_instance.dbserver.private_ip
+            DB_PORT         = var.postgresql_port
+            META_DB_NAME    = var.meta_db_name
+            META_DB_ROLE    = var.meta_db_role
+            META_DB_PASS    = random_password.airflow_meta_db.result
+            FERNET_KEY      = var.fernet_key
+            JWT_SECRET      = var.jwt_secret
           }
         }
       }

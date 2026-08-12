@@ -2,7 +2,6 @@
 ---
 - name: Install Airflow
   hosts: appserver
-  become: true
   vars_files:
     - ../group_vars/terraform_vars.yml
   roles:

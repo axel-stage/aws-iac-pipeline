@@ -1,61 +1,87 @@
 # Main flow
 ---
 - name: Create airflow group
-  group:
+  become: true
+  ansible.builtin.group:
     name: "{{ airflow_group }}"
     state: present
 
 - name: Create airflow user
-  user:
+  become: true
+  ansible.builtin.user:
     name: "{{ airflow_user }}"
     group: "{{ airflow_group }}"
     shell: "/bin/bash"
+    create_home: true
+    home: "{{ airflow_home }}"
 
 - name: Install required packages
-  apt:
+  become: true
+  ansible.builtin.apt:
     name:
       - python3
       - python3-pip
       - python3-venv
+      - python3-dev
       - libpq-dev
       - build-essential
+      - redis-server
       - git
       - acl
+      # - postgresql
+      # - postgresql-contrib
     state: present
     update_cache: yes
 
 - name: Create Python virtual environment
   become: true
-  become_user: airflow
-  command:
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.command:
     cmd: python3 -m venv {{ airflow_venv }}
     creates: "{{ airflow_venv }}/bin/python3"
 
 - name: Upgrade pip
-  pip:
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.pip:
     name: pip
     state: latest
     virtualenv: "{{ airflow_venv }}"
 
+- name: Upgrade setuptools
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.pip:
+    name: setuptools
+    state: latest
+    virtualenv: "{{ airflow_venv }}"
+
 - name: Install Python Packages
-  pip:
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.pip:
     virtualenv: "{{ airflow_venv }}"
     name:
       - psycopg2-binary
       - asyncpg
+      - pandas
 
 - name: Install Apache Airflow
-  pip:
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.pip:
     virtualenv: "{{ airflow_venv }}"
     extra_args: >
       --constraint
       https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ python_version }}.txt
     name:
       - apache-airflow-core
-      - "apache-airflow=={{ airflow_version }}"
+      - "apache-airflow[celery]=={{ airflow_version }}"
 
 - name: Install Airflow providers
-  pip:
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.pip:
     virtualenv: "{{ airflow_venv }}"
     name:
       - apache-airflow-providers-common-io
@@ -78,5 +104,5 @@
       # - apache-airflow-providers-hashicorp
 
 - name: Test Airflow installation
-  include_tasks: test.yml
+  ansible.builtin.include_tasks: test.yml
 ...

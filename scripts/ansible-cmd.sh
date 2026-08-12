@@ -12,7 +12,7 @@ ansible --version
 
 # ssh
 #####
-ssh ubuntu@3.66.236.183 -i ansible/keys/ansible-key.pem
+ssh ubuntu@18.184.118.9 -i ansible/keys/ansible-key.pem
 
 
 # inventory
@@ -118,6 +118,8 @@ ansible-playbook playbooks/install-airflow.yml -i inventory/hosts.yml
 # Apply Ansible configuration to all app servers
 ansible-playbook playbooks/configure-airflow.yml -i inventory/hosts.yml
 
+# get login
+ansible appserver -m shell -a "sudo cat /opt/airflow/simple_auth_manager_passwords.json.generated"
 
 
 

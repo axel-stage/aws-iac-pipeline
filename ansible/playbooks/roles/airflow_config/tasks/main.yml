@@ -1,38 +1,10 @@
 # Apply Airflow configuration
 ---
-- name: Create Airflow environment file
-  ansible.builtin.template:
-    src: airflow.env.j2
-    dest: "{{ airflow_home }}/.env.airflow"
-    mode: "0600"
-  notify:
-    - Reload systemd
-    - Restart Airflow API Server
-
-- name: Verify Airflow environment
-  ansible.builtin.shell:
-    cmd: |
-      echo "PATH=${PATH}"
-      echo "AIRFLOW_HOME=${AIRFLOW_HOME}"
-      echo "AIRFLOW_CONFIG=${AIRFLOW_CONFIG}"
-      echo "AIRFLOW__CORE__EXECUTOR=${AIRFLOW__CORE__EXECUTOR}"
-      echo "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN}"
-      echo "AIRFLOW__CORE__EXECUTION_API_SERVER_URL=${AIRFLOW__CORE__EXECUTION_API_SERVER_URL}"
-  args:
-    executable: /bin/bash
-  register: airflow_env
-
-- name: Display Airflow environment
-  ansible.builtin.debug:
-    var: airflow_env.stdout_lines
-
-# - name: Set environment variable in config file
-#   lineinfile:
-#     path: "{{ airflow_home }}/.bashrc"
-#     line: export PATH="{{ airflow_venv }}/bin:$PATH"
+- name: Include Pretest tasks
+  ansible.builtin.include_tasks: pretest.yml
 
 - name: Create Airflow directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ airflow_user }}"
@@ -44,74 +16,146 @@
     - "{{ airflow_home }}/plugins"
     - "{{ airflow_home }}/config"
 
-- name: Build airflow.cfg
-  ansible.builtin.shell: >
-    airflow config list --defaults > "{{ airflow_home }}/airflow.cfg"
-  args:
-    executable: /bin/bash
+- name: Create Airflow environment file
+  ansible.builtin.template:
+    src: airflow.env.j2
+    dest: "{{ airflow_home }}/.env.airflow"
+    owner: "{{ airflow_user }}"
+    group: "{{ airflow_group }}"
+    mode: "0600"
 
-- name: Test PostgreSQL connectivity
-  command: >
-    python3 -c
-    "import psycopg2;
-    psycopg2.connect(
-      host='{{ postgresql_host }}',
-      dbname='{{ postgres_database }}',
-      user='{{ postgres_user }}',
-      password='{{ postgres_password }}',
-      port={{ postgresql_port }}
-    );
-    print('OK')"
-  register: postgres_connection
-  changed_when: false
-
-- name: Initialize Airflow metadata database
+- name: Verify Airflow environment file
   ansible.builtin.shell:
     cmd: |
-      airflow db migrate
-  args:
+      set -ea # automatic-export behavior on | fail if cmd fails
+      source "{{ airflow_home }}/.env.airflow"
+      set +a # automatic-export behavior off
+
+      echo "PATH=${PATH}"
+      echo "AIRFLOW_HOME=${AIRFLOW_HOME}"
+      echo "AIRFLOW_CONFIG=${AIRFLOW_CONFIG}"
+      echo "AIRFLOW__CORE__EXECUTOR=${AIRFLOW__CORE__EXECUTOR}"
+      if [[ -n "${AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:-}" ]]; then
+        echo "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN is set"
+      else
+        echo "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN is NOT set"
+      fi
+      echo "AIRFLOW__CORE__EXECUTION_API_SERVER_URL=${AIRFLOW__CORE__EXECUTION_API_SERVER_URL}"
+    executable: /bin/bash
+  register: airflow_env
+  changed_when: false
+
+- name: Display Airflow environment
+  ansible.builtin.debug:
+    var: airflow_env.stdout_lines
+
+- name: Migrate Airflow metadata database
+  ansible.builtin.shell:
+    cmd: |
+      set -ea # automatic-export behavior on
+      source "{{ airflow_home }}/.env.airflow"
+      set +a # automatic-export behavior off
+      "{{ airflow_venv }}/bin/airflow" db migrate
     executable: /bin/bash
 
-- name: Create Airflow API server systemd service (root)
+- name: Install Airflow API server systemd service (root)
   become: true
-  become_user: "{{ root_user }}"
-  template:
+  become_user: root
+  ansible.builtin.template:
     src: airflow-api-server.service.j2
     dest: /etc/systemd/system/airflow-api-server.service
-    owner: "{{ root_user }}"
-    group: "{{ root_user }}"
+    owner: root
+    group: root
     mode: "0644"
-  notify:
-    - Reload systemd
-    - Restart Airflow API Server
+  notify: Restart Airflow API server service
 
-- name: Create Airflow scheduler systemd service (root)
+- name: Install Airflow scheduler systemd service (root)
   become: true
-  become_user: "{{ root_user }}"
-  template:
+  become_user: root
+  ansible.builtin.template:
     src: airflow-scheduler.service.j2
     dest: /etc/systemd/system/airflow-scheduler.service
-    owner: "{{ root_user }}"
-    group: "{{ root_user }}"
+    owner: root
+    group: root
     mode: "0644"
-  notify:
-    - Reload systemd
-    - Restart Airflow Scheduler
+  notify: Restart Airflow scheduler service
 
-- name: Enable Airflow API server service
+- name: Install Celery worker systemd service (root)
   become: true
-  become_user: "{{ root_user }}"
-  systemd:
+  become_user: root
+  ansible.builtin.template:
+    src: airflow-worker.service.j2
+    dest: /etc/systemd/system/airflow-worker.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Airflow worker service
+
+- name: Install triggerer systemd service (root)
+  become: true
+  become_user: root
+  ansible.builtin.template:
+    src: airflow-triggerer.service.j2
+    dest: /etc/systemd/system/airflow-triggerer.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Airflow triggerer service
+
+- name: Install dag processor systemd service (root)
+  become: true
+  become_user: root
+  ansible.builtin.template:
+    src: airflow-dag-processor.service.j2
+    dest: /etc/systemd/system/airflow-dag-processor.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Airflow dag processor service
+
+- name: Reload systemd
+  become: true
+  become_user: root
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: Enable and start Airflow API server service
+  become: true
+  become_user: root
+  ansible.builtin.systemd_service:
     name: airflow-api-server
     enabled: true
     state: started
-    daemon_reload: true
 
-- name: Enable Airflow scheduler service
+- name: Enable and start Airflow scheduler service
   become: true
-  become_user: "{{ root_user }}"
-  systemd:
+  become_user: root
+  ansible.builtin.systemd_service:
     name: airflow-scheduler
     enabled: true
     state: started
-    daemon_reload: true
+
+- name: Enable and start Airflow worker service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-worker
+    enabled: true
+    state: started
+
+- name: Enable and start Airflow triggerer service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-triggerer
+    enabled: true
+    state: started
+
+- name: Enable and start Airflow dag processor service
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    name: airflow-dag-processor
+    enabled: true
+    state: started
+...

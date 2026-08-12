@@ -3,11 +3,8 @@ airflow_venv: "{{ airflow_home }}/.venv"
 airflow_dags: "{{ airflow_home }}/dags"
 airflow_logs: "{{ airflow_home }}/logs"
 
-root_user: root
-
 airflow_user: airflow
 airflow_group: airflow
 
-postgres_database: airflow
-postgres_user: airflow
-postgres_password: 'airflow'
+airflow_celery_concurrency: 2
+airflow_api_server_port: 8080

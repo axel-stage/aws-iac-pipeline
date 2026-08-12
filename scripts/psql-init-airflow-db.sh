@@ -1,35 +1,40 @@
 #!/bin/bash
 set -e
 
-ENVIRONNMENT=dev
-
 # load env vars
-source .env.${ENVIRONNMENT}
+source .env.psql
 
 # connect with SSL required
 # role: root
 export PGSSLMODE=require
 export PGPASSWORD=${DB_ROOT_PASS}
-psql --host ${DB_HOST} --port ${DB_PORT} --username ${DB_ROOT_ROLE} --dbname ${DB_ROOT_NAME} --no-password <<-EOSQL
+psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --username ${DB_ROOT_ROLE} --dbname ${DB_ROOT_NAME} --no-password <<-EOSQL
 
 \conninfo
 \timing
 
-CREATE ROLE airflow WITH
+CREATE ROLE ${META_DB_ROLE} WITH
     LOGIN
-    PASSWORD 'airflow'
+    PASSWORD '${META_DB_PASS}'
+    NOCREATEDB
+    NOSUPERUSER
+    NOCREATEROLE
+    NOINHERIT
+    NOBYPASSRLS
+    NOREPLICATION
     VALID UNTIL 'infinity'
-    CONNECTION LIMIT 10;
+    CONNECTION LIMIT ${META_DB_CONN_LIMIT};
 
-CREATE DATABASE airflow WITH
-    OWNER airflow
+CREATE DATABASE ${META_DB_NAME} WITH
+    OWNER ${META_DB_ROLE}
     ENCODING='UTF8'
     LC_COLLATE='en_US.UTF-8'
     LC_CTYPE='en_US.UTF-8'
     TEMPLATE template0;
 
-GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
-GRANT ALL ON SCHEMA public TO airflow;
+GRANT ALL PRIVILEGES ON DATABASE ${META_DB_NAME} TO ${META_DB_ROLE};
+GRANT ALL ON SCHEMA public TO ${META_DB_ROLE};
 
+ALTER USER ${META_DB_ROLE} SET search_path = public;
 \q
 EOSQL

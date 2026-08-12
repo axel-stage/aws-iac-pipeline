@@ -1,16 +1,12 @@
 - name: Get installed Airflow version
-  shell: |
-    source {{ airflow_venv }}/bin/activate
-    airflow version
-  args:
+  become: true
+  become_user: "{{ airflow_user }}"
+  ansible.builtin.shell:
+    cmd: |
+      {{ airflow_venv }}/bin/airflow version
     executable: /bin/bash
   register: installed_airflow_version
   changed_when: false
-
-# - name: Get installed Airflow version
-#   command: "{{ airflow_venv }}/bin/airflow version"
-#   register: installed_airflow_version
-#   changed_when: false
 
 - name: Show installed Airflow version
   debug:

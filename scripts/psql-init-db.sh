@@ -1,16 +1,14 @@
 #!/bin/bash
 set -e
 
-ENVIRONNMENT=dev
-
 # load env vars
-source .env.${ENVIRONNMENT}
+source .env.psql
 
 # connect with SSL required
 # role: root
 export PGSSLMODE=require
 export PGPASSWORD=${DB_ROOT_PASS}
-psql --host ${DB_HOST} --port ${DB_PORT} --username ${DB_ROOT_ROLE} --dbname ${DB_ROOT_NAME} --no-password <<-EOSQL
+psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --username ${DB_ROOT_ROLE} --dbname ${DB_ROOT_NAME} --no-password <<-EOSQL
 
 \conninfo
 \timing
@@ -61,6 +59,7 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH
   SCHEMA ${DB_SCHEMA};
 
 GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_ADMIN_ROLE};
+GRANT ALL ON SCHEMA ${DB_SCHEMA} TO ${DB_ADMIN_ROLE};
 
 GRANT CONNECT ON DATABASE ${DB_NAME} TO ${DB_READ_ROLE};
 GRANT USAGE ON SCHEMA ${DB_SCHEMA} TO ${DB_READ_ROLE};

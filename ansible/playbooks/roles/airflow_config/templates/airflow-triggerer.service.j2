@@ -1,13 +1,13 @@
 [Unit]
-Description=Airflow API Server
-After=network.target redis-server.service
+Description=Airflow Triggerer
+After=network.target
 
 [Service]
 User={{ airflow_user }}
 Group={{ airflow_group }}
 EnvironmentFile={{ airflow_home }}/.env.airflow
 WorkingDirectory={{ airflow_home }}
-ExecStart={{ airflow_venv }}/bin/airflow api-server --host 0.0.0.0 --port {{ airflow_api_server_port }}
+ExecStart={{ airflow_venv }}/bin/airflow triggerer
 
 Restart=always
 RestartSec=10

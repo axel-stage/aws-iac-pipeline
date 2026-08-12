@@ -98,8 +98,8 @@ variable "appserver_instance_type" {
   default     = "t3.micro"
 
   validation {
-    condition     = contains(["t3.micro", "t3.small", "t3.medium"], var.appserver_instance_type)
-    error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium"
+    condition     = contains(["t3.micro", "t3.small", "t3.medium" , "t3.large"], var.appserver_instance_type)
+    error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium, t3.large"
   }
 }
 
@@ -139,8 +139,51 @@ variable "bucket_versioning" {
 
 variable "postgresql_port" {
   description = "Port for PostgreSQL"
+  type        = string
+  default     = "5432"
+}
+
+variable "db_root_name" {
+  description = "Name of the PostgreSQL root database"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_root_role" {
+  description = "Role name for the root user"
+  type        = string
+  default     = "postgres"
+}
+
+variable "meta_db_name" {
+  description = "Name of the Airflow meta database"
+  type        = string
+  default     = "airflow_meta_db"
+}
+
+variable "meta_db_role" {
+  description = "Role of the Airflow meta database user"
+  type        = string
+  default     = "dbairflow"
+}
+
+variable "meta_db_conn_limit" {
+  description = "Number of concurrent connectios for user"
   type        = number
-  default     = 5432
+  default     = 100
+}
+
+###############################################################################
+# airflow
+
+variable "fernet_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "jwt_secret" {
+  type      = string
+  sensitive = true
 }
 
 ###############################################################################
@@ -148,8 +191,8 @@ variable "postgresql_port" {
 
 variable "ansible_port" {
   description = "Port for Ansible to SSH to"
-  type        = number
-  default     = 22
+  type        = string
+  default     = "22"
 }
 
 variable "ansible_user" {
