@@ -47,36 +47,35 @@ resource "aws_iam_role_policy_attachment" "github_ec2" {
 }
 
 # Custom policy for additional permissions
+resource "aws_iam_role_policy" "github_additional" {
+  name = "github-actions-additional"
+  role = aws_iam_role.github_actions.id
 
-# resource "aws_iam_role_policy" "github_additional" {
-#   name = "github-actions-additional"
-#   role = aws_iam_role.github_actions.id
-
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "iam:CreateRole",
-#           "iam:DeleteRole",
-#           "iam:AttachRolePolicy",
-#           "iam:DetachRolePolicy",
-#           "iam:PutRolePolicy",
-#           "iam:DeleteRolePolicy",
-#           "iam:GetRole",
-#           "iam:GetRolePolicy",
-#           "iam:ListRolePolicies",
-#           "iam:ListAttachedRolePolicies",
-#           "iam:UpdateAssumeRolePolicy",
-#           "iam:PassRole",
-#           "iam:TagRole",
-#           "iam:UntagRole",
-#           "iam:ListInstanceProfilesForRole",
-#           "sts:GetCallerIdentity"
-#         ]
-#         Resource = "*"
-#       }
-#     ]
-#   })
-# }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:GetRole",
+          "iam:GetRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:PassRole",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:ListInstanceProfilesForRole",
+          "sts:GetCallerIdentity"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
