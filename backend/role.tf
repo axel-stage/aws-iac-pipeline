@@ -1,0 +1,62 @@
+###############################################################################
+# iam
+
+data "aws_iam_policy_document" "github_trust" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Federated"
+      identifiers = [
+        aws_iam_openid_connect_provider.github_actions.arn
+      ]
+    }
+
+    actions = [
+      "sts:AssumeRoleWithWebIdentity"
+    ]
+
+    # Verify the audience
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = [
+        "sts.amazonaws.com"
+      ]
+    }
+
+    # Restrict to specific repository and branch
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = [
+        "repo:${var.github_owner_login}@${var.github_owner_id}/${var.github_repository_name}@${var.github_repository_id}:ref:*"
+      ]
+    }
+  }
+}
+
+resource "aws_iam_role" "github_actions" {
+  name = "${var.project}-${var.environment}-github-actions-role"
+  assume_role_policy = data.aws_iam_policy_document.github_trust.json
+
+  tags = {
+    Description = "GitHub Actions deployment role"
+  }
+}
+
+# Attach necessary policies
+resource "aws_iam_role_policy_attachment" "github_iam_read" {
+  policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+  role       = aws_iam_role.github_actions.name
+}
+
+resource "aws_iam_role_policy_attachment" "github_s3" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.github_actions.name
+}
+
+resource "aws_iam_role_policy_attachment" "github_ec2" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+  role       = aws_iam_role.github_actions.name
+}

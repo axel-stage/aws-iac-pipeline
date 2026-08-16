@@ -1,8 +1,16 @@
 terraform {
   required_version = ">=1.9"
-  backend "local" {
-    path = "local_state/terraform.state"
+
+  backend "s3" {
+    # use values from backend/.env
+    bucket = "aws-iac-pipline-global-terraform-backend"
+    key = "infrastructure/terraform.tfstate"
+    region = "eu-central-1"
+
+    use_logfile = true
+    encrypt = true
   }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -34,9 +42,9 @@ provider "aws" {
   shared_credentials_files = ["/home/xl/.aws/credentials"]
   default_tags {
     tags = {
-      Project      = var.project
-      Environment  = var.environment
-      Provisioning = var.iac_provisioning
+      Project     = var.project
+      Environment = var.environment
+      ProvisionBy = var.iac_provisioning
     }
   }
 }

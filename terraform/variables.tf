@@ -98,7 +98,7 @@ variable "appserver_instance_type" {
   default     = "t3.micro"
 
   validation {
-    condition     = contains(["t3.micro", "t3.small", "t3.medium" , "t3.large"], var.appserver_instance_type)
+    condition     = contains(["t3.micro", "t3.small", "t3.medium", "t3.large"], var.appserver_instance_type)
     error_message = "EC2 instance type must be: t3.micro, t3.small, t3.medium, t3.large"
   }
 }
@@ -197,7 +197,7 @@ variable "ansible_port" {
 
 variable "ansible_user" {
   description = "Name of the Ansible user"
-  type = string
+  type        = string
 }
 
 ###############################################################################
