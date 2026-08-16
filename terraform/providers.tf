@@ -7,6 +7,7 @@ terraform {
     key     = "infrastructure/terraform.tfstate"
     region  = "eu-central-1"
 
+    use_logfile = true
     encrypt = true
   }
 
