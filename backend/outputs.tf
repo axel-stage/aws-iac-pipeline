@@ -10,10 +10,6 @@ output "region" {
   value = var.region
 }
 
-# output "BACKEND_DYNAMODB_TABLE" {
-#   value = aws_dynamodb_table.terraform.name
-# }
-
-# output "GITHUB_ACTIONS_ROLE_ARN" {
-#   value = aws_iam_role.github_actions.arn
-# }
+output "github_actions_role_arn" {
+  value = aws_iam_role.github_actions.arn
+}

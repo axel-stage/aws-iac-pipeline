@@ -1,8 +1,13 @@
+###############################################################################
+# terraform configuration
+
 terraform {
   required_version = ">=1.9"
+
   backend "local" {
     path = "infrastructure/terraform.state"
   }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -10,6 +15,9 @@ terraform {
     }
   }
 }
+
+###############################################################################
+# provider configuration
 
 provider "aws" {
   region                   = var.region

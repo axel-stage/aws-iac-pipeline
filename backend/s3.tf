@@ -5,6 +5,8 @@ resource "aws_s3_bucket" "terraform" {
   bucket = "${var.project}-${var.environment}-terraform-backend"
   region = var.region
 
+  # force_destroy = true
+
   tags = {
     Project     = var.project
     Environment = var.environment
