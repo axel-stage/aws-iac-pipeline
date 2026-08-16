@@ -19,7 +19,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ env.AWS_ROLE }}
-          role-session-name: MySessionName
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
       - name: Copy README to s3
         run: |
           aws s3 cp ./README.md s3://${{ env.BUCKET_NAME }}/
