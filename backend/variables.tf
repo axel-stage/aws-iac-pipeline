@@ -37,7 +37,25 @@ variable "project" {
   type        = string
 }
 
-variable "github_repository" {
-  description = "GitHub repository in format 'owner/repo'"
+variable "github_repository_name" {
+  description = "GitHub repository name"
   type        = string
+}
+
+###############################################################################
+# secrets
+
+variable "github_owner_login" {
+  type      = string
+  sensitive = true
+}
+
+variable "github_owner_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "github_repository_id" {
+  type      = string
+  sensitive = true
 }

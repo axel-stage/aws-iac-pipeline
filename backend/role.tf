@@ -7,16 +7,22 @@ data "aws_iam_policy_document" "github_trust" {
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
+      identifiers = [
+        aws_iam_openid_connect_provider.github_actions.arn
+      ]
     }
 
-    actions = ["sts:AssumeRoleWithWebIdentity"]
+    actions = [
+      "sts:AssumeRoleWithWebIdentity"
+    ]
 
     # Verify the audience
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:aud"
-      values   = ["sts.amazonaws.com"]
+      values   = [
+        "sts.amazonaws.com"
+      ]
     }
 
     # Restrict to specific repository and branch
@@ -24,7 +30,8 @@ data "aws_iam_policy_document" "github_trust" {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values   = [
-        "repo:*",
+        "repo:${var.github_owner_login}@${var.github_owner_id}/${var.github_repository_name}@${var.github_repository_id}:ref:*"
+        #"repo:*"
       ]
     }
   }
