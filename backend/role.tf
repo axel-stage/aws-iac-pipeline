@@ -10,7 +10,6 @@ data "aws_iam_policy_document" "github_trust" {
       identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
     }
 
-
     actions = ["sts:AssumeRoleWithWebIdentity"]
 
     # Verify the audience
@@ -25,7 +24,7 @@ data "aws_iam_policy_document" "github_trust" {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values   = [
-        "repo:axel-stage/aws-iac-pipeline:*",
+        "repo:*",
       ]
     }
   }
@@ -34,37 +33,11 @@ data "aws_iam_policy_document" "github_trust" {
 resource "aws_iam_role" "github_actions" {
   name = "${var.project}-${var.environment}-github-actions-role"
   assume_role_policy = data.aws_iam_policy_document.github_trust.json
+
+  tags = {
+    Description = "GitHub Actions deployment role"
+  }
 }
-
-
-# resource "aws_iam_role" "github_actions" {
-#   name = "${var.project}-${var.environment}-github-actions-role"
-
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Principal = {
-#           Federated = aws_iam_openid_connect_provider.github.arn
-#         }
-#         Action = "sts:AssumeRoleWithWebIdentity"
-#         Condition = {
-#           StringEquals = {
-#             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-#           }
-#           StringLike = {
-#             "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repository}:*"
-#           }
-#         }
-#       }
-#     ]
-#   })
-
-#   tags = {
-#     Description = "GitHub Actions deployment role"
-#   }
-# }
 
 # Attach necessary policies
 resource "aws_iam_role_policy_attachment" "github_iam_read" {
@@ -83,7 +56,7 @@ resource "aws_iam_role_policy_attachment" "github_ec2" {
 }
 
 # Custom policy for additional permissions
-resource "aws_iam_role_policy" "github_additional" {
+resource "aws_iam_role_policy" "github_sts" {
   name = "github-actions-additional"
   role = aws_iam_role.github_actions.id
 
@@ -93,22 +66,22 @@ resource "aws_iam_role_policy" "github_additional" {
       {
         Effect = "Allow"
         Action = [
-          "iam:CreateRole",
-          "iam:DeleteRole",
-          "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy",
-          "iam:PutRolePolicy",
-          "iam:DeleteRolePolicy",
-          "iam:GetRole",
-          "iam:GetRolePolicy",
-          "iam:ListRolePolicies",
-          "iam:ListAttachedRolePolicies",
-          "iam:UpdateAssumeRolePolicy",
-          "iam:PassRole",
-          "iam:TagRole",
-          "iam:UntagRole",
-          "iam:ListInstanceProfilesForRole",
-          "sts:*"
+            "sts:AssumeRoleWithWebIdentity"
+#           "iam:CreateRole",
+#           "iam:DeleteRole",
+#           "iam:AttachRolePolicy",
+#           "iam:DetachRolePolicy",
+#           "iam:PutRolePolicy",
+#           "iam:DeleteRolePolicy",
+#           "iam:GetRole",
+#           "iam:GetRolePolicy",
+#           "iam:ListRolePolicies",
+#           "iam:ListAttachedRolePolicies",
+#           "iam:UpdateAssumeRolePolicy",
+#           "iam:PassRole",
+#           "iam:TagRole",
+#           "iam:UntagRole",
+#           "iam:ListInstanceProfilesForRole",
         ]
         Resource = "*"
       }
