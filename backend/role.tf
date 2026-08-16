@@ -31,7 +31,6 @@ data "aws_iam_policy_document" "github_trust" {
       variable = "token.actions.githubusercontent.com:sub"
       values   = [
         "repo:${var.github_owner_login}@${var.github_owner_id}/${var.github_repository_name}@${var.github_repository_id}:ref:*"
-        #"repo:*"
       ]
     }
   }
@@ -60,38 +59,4 @@ resource "aws_iam_role_policy_attachment" "github_s3" {
 resource "aws_iam_role_policy_attachment" "github_ec2" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   role       = aws_iam_role.github_actions.name
-}
-
-# Custom policy for additional permissions
-resource "aws_iam_role_policy" "github_sts" {
-  name = "github-actions-additional"
-  role = aws_iam_role.github_actions.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-            "sts:AssumeRoleWithWebIdentity"
-#           "iam:CreateRole",
-#           "iam:DeleteRole",
-#           "iam:AttachRolePolicy",
-#           "iam:DetachRolePolicy",
-#           "iam:PutRolePolicy",
-#           "iam:DeleteRolePolicy",
-#           "iam:GetRole",
-#           "iam:GetRolePolicy",
-#           "iam:ListRolePolicies",
-#           "iam:ListAttachedRolePolicies",
-#           "iam:UpdateAssumeRolePolicy",
-#           "iam:PassRole",
-#           "iam:TagRole",
-#           "iam:UntagRole",
-#           "iam:ListInstanceProfilesForRole",
-        ]
-        Resource = "*"
-      }
-    ]
-  })
 }

@@ -1,7 +1,7 @@
 name: CopyToS3
-#on: workflow_dispatch
-on:
-  push
+on: workflow_dispatch
+# on:
+#   push
 env:
   AWS_REGION: eu-central-1
   AWS_ROLE: "arn:aws:iam::508948847810:role/aws-iac-pipline-global-github-actions-role"
