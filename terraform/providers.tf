@@ -3,9 +3,9 @@ terraform {
 
   backend "s3" {
     # use values from backend/.env
-    bucket  = "aws-iac-pipline-global-terraform-backend"
-    key     = "infrastructure/terraform.tfstate"
-    region  = "eu-central-1"
+    bucket = "aws-iac-pipline-global-terraform-backend"
+    key = "infrastructure/terraform.tfstate"
+    region = "eu-central-1"
 
     use_logfile = true
     encrypt = true

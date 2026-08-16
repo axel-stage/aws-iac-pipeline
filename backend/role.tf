@@ -1,34 +1,70 @@
 ###############################################################################
 # iam
 
-resource "aws_iam_role" "github_actions" {
-  name = "${var.project}-${var.environment}-github-actions-role"
+data "aws_iam_policy_document" "github_trust" {
+  statement {
+    effect = "Allow"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.github.arn
-        }
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Condition = {
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          }
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:*"
-          }
-        }
-      }
-    ]
-  })
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
+    }
 
-  tags = {
-    Description = "GitHub Actions deployment role"
+
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    # Verify the audience
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    # Restrict to specific repository and branch
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = [
+        "repo:axel-stage/aws-iac-pipeline:*",
+      ]
+    }
   }
 }
+
+resource "aws_iam_role" "github_actions" {
+  name = "${var.project}-${var.environment}-github-actions-role"
+  assume_role_policy = data.aws_iam_policy_document.github_trust.json
+}
+
+
+# resource "aws_iam_role" "github_actions" {
+#   name = "${var.project}-${var.environment}-github-actions-role"
+
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Effect = "Allow"
+#         Principal = {
+#           Federated = aws_iam_openid_connect_provider.github.arn
+#         }
+#         Action = "sts:AssumeRoleWithWebIdentity"
+#         Condition = {
+#           StringEquals = {
+#             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+#           }
+#           StringLike = {
+#             "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repository}:*"
+#           }
+#         }
+#       }
+#     ]
+#   })
+
+#   tags = {
+#     Description = "GitHub Actions deployment role"
+#   }
+# }
 
 # Attach necessary policies
 resource "aws_iam_role_policy_attachment" "github_iam_read" {
