@@ -1,8 +1,6 @@
 name: CopyToS3
 on:
   push
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 env:
   AWS_REGION: eu-central-1
   AWS_ROLE: arn:aws:iam::508948847810:role/aws-iac-pipline-global-github-actions-role
@@ -19,8 +17,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE }}
+          role-session-name: MySessionName
       - name: Copy README to s3
         run: |
           aws s3 cp ./README.md s3://${{ env.BUCKET_NAME }}/
