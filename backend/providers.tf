@@ -2,7 +2,7 @@
 # terraform configuration
 
 terraform {
-  required_version = ">=1.9"
+  required_version = "~> 1.15.8"
 
   backend "local" {
     path = "infrastructure/terraform.state"
