@@ -1,0 +1,36 @@
+name: Deploy IaC on AWS
+on:
+  workflow_dispatch
+env:
+  AWS_REGION: eu-central-1
+  AWS_ROLE: "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/aws-iac-pipline-global-github-actions-role"
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  terraform_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GIT clone Repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE }}
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+
+      - name: Sets up Terraform CLI
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        working-directory: terraform
+        continue-on-error: true
