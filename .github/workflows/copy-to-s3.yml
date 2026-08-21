@@ -1,16 +1,16 @@
-name: CopyToS3
-on: workflow_dispatch
-# on:
-#   push
+name: Copy to S3
+on:
+  workflow_dispatch:
 env:
   AWS_REGION: eu-central-1
-  AWS_ROLE: "arn:aws:iam::508948847810:role/aws-iac-pipline-global-github-actions-role"
+  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+  AWS_ROLE_SESSION_NAME: GitHub_to_AWS_via_FederatedOIDC
   BUCKET_NAME : aws-iac-pipline-global-terraform-backend
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 jobs:
-  S3Upload:
+  s3-upload:
     runs-on: ubuntu-latest
     steps:
       - name: GIT clone Repository
@@ -19,8 +19,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.AWS_ROLE }}
-          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: ${{ env.AWS_ROLE_SESSION_NAME }}
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
