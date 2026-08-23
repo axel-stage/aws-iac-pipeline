@@ -22,11 +22,13 @@ env:
 jobs:
   terraform-destroy:
     name: Terraform destroy
-    if: github.event.inputs.confirm == "approve"
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ env.WORK_DIR }}
+
+    if: github.event.inputs.confirm == 'approve'
+
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
