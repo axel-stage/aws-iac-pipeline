@@ -15,23 +15,10 @@ env:
   AWS_ROLE_SESSION_NAME: GitHub_to_AWS_via_FederatedOIDC
   WORK_DIR: terraform
   # tfvars
-  region: eu-central-1
-  project: aws-iac-pipline
-  environment: dev
-  vpc_cidr_block: 10.10.0.0/16
-  public_subnets: '["10.10.0.0/19", "10.10.96.0/19"]'
-  dbserver_instance_type: t3.medium
-  dbserver_instance_volume_size: 16
-  appserver_instance_type: t3.medium
-  appserver_instance_volume_size: 8
-  force_destroy_bucket: true
-  bucket_versioning: Disabled
-  postgresql_port: 5432
-  meta_db_name: airflow_meta_db
-  meta_db_role: dbairflow
-  meta_db_conn_limit: 50
-  ansible_port: 22
-  ansible_user: ubuntu
+  # TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+  # TF_VAR_environment: ${{ vars.ENVIRONMENT }}
+  # TF_VAR_instance_type: ${{ vars.INSTANCE_TYPE }}
+  # TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
 
 jobs:
 
