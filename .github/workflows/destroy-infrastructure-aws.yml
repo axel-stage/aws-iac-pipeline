@@ -3,10 +3,14 @@ name: Terraform destroy AWS infrastructure
 on:
   workflow_dispatch:
     inputs:
-      approve:
-        description: 'Type "approve" to confirm.'
+      confirm:
+        description: "Type approve to confirm."
         type: string
         required: true
+
+permissions:
+  id-token: write
+  contents: read
 
 env:
   TF_VERSION: 1.15.8
@@ -18,7 +22,7 @@ env:
 jobs:
   terraform-destroy:
     name: Terraform destroy
-    if: github.events.input.approve == "approve"
+    if: github.event.inputs.confirm == "approve"
     runs-on: ubuntu-latest
     defaults:
       run:
