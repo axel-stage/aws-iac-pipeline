@@ -45,9 +45,8 @@ resource "aws_iam_role" "github_actions" {
   }
 }
 
-# Attach necessary policies
-resource "aws_iam_role_policy_attachment" "github_iam_read" {
-  policy_arn = "arn:aws:iam::aws:policy/IAMReadOnlyAccess"
+resource "aws_iam_role_policy_attachment" "github_iam" {
+  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
   role       = aws_iam_role.github_actions.name
 }
 
@@ -58,5 +57,10 @@ resource "aws_iam_role_policy_attachment" "github_s3" {
 
 resource "aws_iam_role_policy_attachment" "github_ec2" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+  role       = aws_iam_role.github_actions.name
+}
+
+resource "aws_iam_role_policy_attachment" "github_cloudwatch" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
   role       = aws_iam_role.github_actions.name
 }
