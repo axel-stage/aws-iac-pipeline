@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload tfplan artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tfplan
           path: ${{ env.WORK_DIR }}/tfplan
@@ -115,9 +115,9 @@ jobs:
 
   terraform-apply:
     needs: terraform-plan
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: production
+    # environment: production
     defaults:
       run:
         working-directory: ${{ env.WORK_DIR }}
@@ -141,7 +141,7 @@ jobs:
         run: terraform init
 
       - name: Download tfplan artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: tfplan
           path: ${{ env.WORK_DIR }}/
