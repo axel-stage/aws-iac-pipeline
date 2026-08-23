@@ -4,11 +4,11 @@ terraform {
   backend "s3" {
     # use values from backend/.env
     bucket = "aws-iac-pipline-global-terraform-backend"
-    key = "infrastructure/terraform.tfstate"
+    key    = "infrastructure/terraform.tfstate"
     region = "eu-central-1"
 
     use_lockfile = true
-    encrypt = true
+    encrypt      = true
   }
 
   required_providers {

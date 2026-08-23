@@ -22,8 +22,8 @@ resource "random_password" "reader" {
 }
 
 resource "random_password" "airflow_meta_db" {
-  length           = 50
-  special          = false
+  length  = 50
+  special = false
   # override_special = "#*-_=+<>"
 }
 

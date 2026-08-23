@@ -25,10 +25,10 @@ resource "local_file" "ansible_inventory_yaml" {
             }
           }
           vars = {
-            DB_PORT         = var.postgresql_port
-            DB_ROOT_NAME    = var.db_root_name
-            DB_ROOT_ROLE    = var.db_root_role
-            DB_ROOT_PASS    = random_password.root.result
+            DB_PORT      = var.postgresql_port
+            DB_ROOT_NAME = var.db_root_name
+            DB_ROOT_ROLE = var.db_root_role
+            DB_ROOT_PASS = random_password.root.result
           }
         }
         appserver = {
