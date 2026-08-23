@@ -48,5 +48,11 @@ jobs:
       - name: Terraform init
         run: terraform init
 
+      - name: Create terraform.tfvars
+        run: |
+          cat > terraform.tfvars <<EOF
+          ${{ secrets.TFVARS }}
+          EOF
+
       - name: Terraform destroy
         run: terraform destroy --auto-approve
