@@ -1,4 +1,4 @@
-name: Terraform deploy to AWS
+name: Terraform deploy AWS infrastructure
 
 on:
   workflow_dispatch
@@ -115,9 +115,7 @@ jobs:
 
   terraform-apply:
     needs: terraform-plan
-    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    # environment: production
     defaults:
       run:
         working-directory: ${{ env.WORK_DIR }}
