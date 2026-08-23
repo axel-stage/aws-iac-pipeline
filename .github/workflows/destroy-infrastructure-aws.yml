@@ -1,0 +1,46 @@
+name: Terraform destroy AWS infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      approve:
+        description: 'Type "approve" to confirm.'
+        type: string
+        required: true
+
+env:
+  TF_VERSION: 1.15.8
+  AWS_REGION: eu-central-1
+  AWS_ROLE_ARN: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+  AWS_ROLE_SESSION_NAME: GitHub_to_AWS_via_FederatedOIDC
+  WORK_DIR: terraform
+
+jobs:
+  terraform-destroy:
+    name: Terraform destroy
+    if: github.events.input.approve == "approve"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
+    steps:
+      - name: GIT clone repository
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: ${{ env.AWS_ROLE_SESSION_NAME }}
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform destroy
+        run: terraform destroy --auto-approve
