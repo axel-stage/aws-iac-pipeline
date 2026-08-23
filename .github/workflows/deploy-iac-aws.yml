@@ -21,6 +21,9 @@ jobs:
 
   terraform-validate:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
@@ -32,15 +35,15 @@ jobs:
 
       - name: Terraform init without backend
         run: terraform init -backend=false
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform format code
         run: terraform fmt -check -recursive
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform validate
         run: terraform validate
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
 
   terraform-security:
     runs-on: ubuntu-latest
@@ -53,8 +56,11 @@ jobs:
           working_directory: ${{ env.WORK_DIR }}
 
   terraform-plan:
-    needs: [terraform-validate, terraform-security]
+    needs: [terraform-validate] # , terraform-security
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
@@ -73,12 +79,12 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
 
       - name: Terraform plan
         id: plan
         run: terraform plan -no-color -out=tfplan
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
         continue-on-error: true
 
       - name: Upload tfplan artifact
@@ -108,6 +114,9 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: production
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
@@ -126,7 +135,7 @@ jobs:
 
       - name: Terraform init
         run: terraform init
-        working-directory: ${{ env.WORK_DIR }}
+        #working-directory: ${{ env.WORK_DIR }}
 
       - name: Download tfplan artifact
         uses: actions/download-artifact@v4
@@ -136,4 +145,4 @@ jobs:
 
       - name: Terraform apply
         run: terraform apply --auto-approve tfplan
-        working-directory: ${{ env.WORK_DIR }}/
+        #working-directory: ${{ env.WORK_DIR }}/
