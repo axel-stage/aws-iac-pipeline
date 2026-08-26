@@ -1,0 +1,82 @@
+name: Ansible configure AWS infrastructure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: 3.14
+  ANSIBLE_VERSION: 14.3.1
+  WORK_DIR: ansible
+
+jobs:
+  ansible:
+    name: Configure infrastructure
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
+
+    steps:
+      - name: GIT clone repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install "ansible==${ANSIBLE_VERSION}"
+
+      - name: Verify Ansible installation
+        run: |
+          ansible --version
+
+      - name: Download artifact terraform
+        uses: actions/download-artifact@v8
+        with:
+          name: terraform-vars
+          path: ansible/group_vars
+
+      - name: Validate Terraform variables
+        run: |
+          test -f group_vars/terraform_vars.yml
+
+      - name: Download artifact hosts
+        uses: actions/download-artifact@v8
+        with:
+          name: hosts
+          path: ansible/inventory
+
+      - name: Download artifact psql
+        uses: actions/download-artifact@v8
+        with:
+          name: env-psql
+          path: ansible
+
+      - name: Test Ansible host connectivity
+        run: |
+          ansible all \
+            -i inventory/hosts.yml \
+            -m ping
+
+      - name: Run playbook install postgresql
+        run: |
+          ansible-playbook playbooks/install-postgresql.yml -i inventory/hosts.yml
+
+      - name: Run playbook configure postgresql
+        run: |
+          ansible-playbook playbooks/configure-postgresql.yml -i inventory/hosts.yml
+
+      - name: Run playbook install airflow
+        run: |
+          ansible-playbook playbooks/install-airflow.yml -i inventory/hosts.yml
+
+      - name: Run playbook configure airflow
+        run: |
+          ansible-playbook playbooks/configure-airflow.yml -i inventory/hosts.yml
