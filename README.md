@@ -1,4 +1,5 @@
 # AWS Infrastructure as Code Pipeline
+My first larger DevOps project, focused on Infrastructure as Code (IaC), GitOps, and CI/CD. It automates the provisioning, configuration, and management of AWS infrastructure using Terraform, Ansible, Git, and GitHub Actions.
 ##  Requirements
 Requirements for a self managed relational database in the cloud
 ### Functional Requirements
