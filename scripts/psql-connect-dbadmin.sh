@@ -1,14 +1,23 @@
 #!/bin/bash
 set -e
 
-# load env vars
-source .env.psql
+DB_HOST_PUBLIC=
+SECRET_ROLE_KEY=postgres_admin
 
-# connect with SSL required
-# role: dbadmin
+secret_string=$(
+  aws secretsmanager get-secret-value \
+    --secret-id aws-iac-pipeline/dev/secret \
+    --query SecretString \
+    --output text
+)
+
+export PGPASSWORD=$(echo ${secret_string} | jq ".${SECRET_ROLE_KEY}.db_pass")
+export DB_PORT=$(echo ${secret_string} | jq ".${SECRET_ROLE_KEY}.db_port")
+export DB_NAME=$(echo ${secret_string} | jq ".${SECRET_ROLE_KEY}.db_name")
+export DB_ROLE=$(echo ${secret_string} | jq ".${SECRET_ROLE_KEY}.db_role")
 export PGSSLMODE=require
-export PGPASSWORD=${DB_ADMIN_PASS}
-psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --dbname ${DB_NAME} --username ${DB_ADMIN_ROLE} --no-password
+
+psql --host ${DB_HOST_PUBLIC} --port ${DB_PORT} --dbname ${DB_NAME} --username ${DB_ROLE} --no-password
 
 # connection settings
 \timing

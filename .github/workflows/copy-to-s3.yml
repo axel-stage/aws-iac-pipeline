@@ -5,7 +5,7 @@ env:
   AWS_REGION: eu-central-1
   AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
   AWS_ROLE_SESSION_NAME: GitHub_to_AWS_via_FederatedOIDC
-  BUCKET_NAME : aws-iac-pipline-global-terraform-backend
+  BUCKET_NAME : aws-iac-pipeline-global-terraform-backend
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
