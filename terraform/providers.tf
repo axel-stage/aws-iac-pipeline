@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     # use values from backend/.env
-    bucket = "aws-iac-pipline-global-terraform-backend"
+    bucket = "aws-iac-pipeline-global-terraform-backend"
     key    = "infrastructure/terraform.tfstate"
     region = "eu-central-1"
 
