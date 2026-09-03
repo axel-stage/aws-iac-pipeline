@@ -34,12 +34,6 @@ data "aws_ami" "ubuntu_noble_2404" {
   }
 }
 
-
-# data "aws_ssm_parameter" "db_password" {
-#   name = "/rds/dev/rds_password"
-#   with_decryption = true
-# }
-
 ###############################################################################
 # extern
 

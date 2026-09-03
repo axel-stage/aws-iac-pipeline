@@ -3,6 +3,15 @@
 ###############################################################################
 # project
 
+variable "project" {
+  description = "The Project name"
+  type        = string
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.project))
+    error_message = "Project name must contain only lowercase letters, numbers, and hyphens."
+  }
+}
+
 variable "region" {
   description = "Primary AWS region"
   type        = string
@@ -11,15 +20,6 @@ variable "region" {
   validation {
     condition     = var.region == "eu-central-1"
     error_message = "region must be 'eu-central-1'"
-  }
-}
-
-variable "project" {
-  description = "The Project name"
-  type        = string
-  validation {
-    condition     = can(regex("^[a-z0-9-]+$", var.project))
-    error_message = "Project name must contain only lowercase letters, numbers, and hyphens."
   }
 }
 
@@ -143,49 +143,6 @@ variable "postgresql_port" {
   default     = "5432"
 }
 
-variable "db_root_name" {
-  description = "Name of the PostgreSQL root database"
-  type        = string
-  default     = "postgres"
-}
-
-variable "db_root_role" {
-  description = "Role name for the root user"
-  type        = string
-  default     = "postgres"
-}
-
-variable "meta_db_name" {
-  description = "Name of the Airflow meta database"
-  type        = string
-  default     = "airflow_meta_db"
-}
-
-variable "meta_db_role" {
-  description = "Role of the Airflow meta database user"
-  type        = string
-  default     = "dbairflow"
-}
-
-variable "meta_db_conn_limit" {
-  description = "Number of concurrent connectios for user"
-  type        = number
-  default     = 100
-}
-
-###############################################################################
-# airflow
-
-variable "fernet_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "jwt_secret" {
-  type      = string
-  sensitive = true
-}
-
 ###############################################################################
 # ansible
 
@@ -199,11 +156,3 @@ variable "ansible_user" {
   description = "Name of the Ansible user"
   type        = string
 }
-
-###############################################################################
-# secrets
-
-# variable "secret" {
-#   type      = string
-#   sensitive = true
-# }
