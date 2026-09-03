@@ -5,11 +5,11 @@ resource "local_file" "artifact_hosts" {
   content = yamlencode({
     all = {
       vars = {
-        ansible_connection         = "smart"
-        ansible_port               = var.ansible_port
-        ansible_user               = var.ansible_user
-        ansible_shell_type         = "sh"
-        ansible_python_interpreter = "/usr/bin/python3"
+        ansible_connection           = "smart"
+        ansible_port                 = var.ansible_port
+        ansible_user                 = var.ansible_user
+        ansible_shell_type           = "sh"
+        ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "ansible/keys/ansible-key.pem"
         ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
       }
@@ -43,7 +43,7 @@ resource "local_file" "artifact_hosts" {
 }
 
 resource "local_file" "artifact_terraform" {
-  content = <<-YAML
+  content  = <<-YAML
     terraform:
       region: ${var.region}
       project: ${var.project}
@@ -69,7 +69,7 @@ resource "aws_key_pair" "ansible" {
 }
 
 resource "local_sensitive_file" "artifact_private_key" {
-  content  = tls_private_key.ansible.private_key_pem
-  filename = "${path.module}/artifacts/ansible-key.pem"
+  content         = tls_private_key.ansible.private_key_pem
+  filename        = "${path.module}/artifacts/ansible-key.pem"
   file_permission = "0600"
 }
