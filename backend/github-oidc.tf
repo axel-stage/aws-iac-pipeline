@@ -15,6 +15,6 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   ]
 
   tags = {
-    Service   = "github-actions"
+    Service = "github-actions"
   }
 }

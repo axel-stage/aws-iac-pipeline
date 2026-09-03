@@ -27,7 +27,6 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = var.project
-      Environment = var.environment
       ProvisionBy = var.iac_provisioning
     }
   }

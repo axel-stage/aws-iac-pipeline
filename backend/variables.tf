@@ -1,16 +1,6 @@
 ###############################################################################
 # project
 
-variable "environment" {
-  description = "Environment name for global"
-  type        = string
-  default     = "global"
-  validation {
-    condition     = var.environment == "global"
-    error_message = "The Terraform Backend Environment is always 'global'"
-  }
-}
-
 variable "region" {
   description = "Primary AWS region"
   type        = string

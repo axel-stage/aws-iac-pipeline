@@ -6,7 +6,8 @@ data "aws_iam_policy_document" "github_trust" {
     effect = "Allow"
 
     principals {
-      type        = "Federated"
+      type = "Federated"
+
       identifiers = [
         aws_iam_openid_connect_provider.github_actions.arn
       ]
@@ -16,28 +17,28 @@ data "aws_iam_policy_document" "github_trust" {
       "sts:AssumeRoleWithWebIdentity"
     ]
 
-    # Verify the audience
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:aud"
-      values   = [
+
+      values = [
         "sts.amazonaws.com"
       ]
     }
 
-    # Restrict to specific repository and branch
     condition {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [
-        "repo:${var.github_owner_login}@${var.github_owner_id}/${var.github_repository_name}@${var.github_repository_id}:ref:*"
+
+      values = [
+        "repo:${var.github_owner_login}@${var.github_owner_id}/${var.github_repository_name}@${var.github_repository_id}:ref:refs/heads/main"
       ]
     }
   }
 }
 
 resource "aws_iam_role" "github_actions" {
-  name = "${var.project}-${var.environment}-github-actions-role"
+  name               = "${var.project}-github-actions-role"
   assume_role_policy = data.aws_iam_policy_document.github_trust.json
 
   tags = {
