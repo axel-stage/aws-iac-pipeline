@@ -9,7 +9,7 @@ resource "aws_secretsmanager_secret_version" "secret" {
   secret_id = aws_secretsmanager_secret.secret.id
   secret_string = jsonencode({
     environment = var.environment
-    jwt_token   = data.external.jwt_token.result.jwt_token
+    jwt_token   = data.external.jwt_key.result.jwt_token
     fernet_key  = data.external.fernet_key.result.fernet_key
     postgres_root = {
       db_port       = 5432
@@ -44,4 +44,15 @@ resource "aws_secretsmanager_secret_version" "secret" {
       db_conn_limit = 100
     }
   })
+}
+
+resource "aws_secretsmanager_secret" "ansible_private_key" {
+  name = "${var.project}/${var.environment}/ansible-private-key"
+
+  #recovery_window_in_days = 7
+}
+
+resource "aws_secretsmanager_secret_version" "ansible_private_key" {
+  secret_id     = aws_secretsmanager_secret.ansible_private_key.id
+  secret_string = tls_private_key.ansible_key.private_key_pem
 }

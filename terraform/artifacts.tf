@@ -54,22 +54,3 @@ resource "local_file" "artifact_terraform" {
     YAML
   filename = "${path.module}/artifacts/terraform_vars.yml"
 }
-
-###############################################################################
-# ssh key
-
-resource "tls_private_key" "ansible" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "ansible" {
-  key_name   = "${var.project}-${var.environment}-ansible-key"
-  public_key = tls_private_key.ansible.public_key_openssh
-}
-
-resource "local_sensitive_file" "artifact_private_key" {
-  content         = tls_private_key.ansible.private_key_pem
-  filename        = "${path.module}/artifacts/ansible-key.pem"
-  file_permission = "0600"
-}
