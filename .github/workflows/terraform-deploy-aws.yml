@@ -101,7 +101,6 @@ jobs:
       - name: Terraform plan
         id: plan
         run: terraform plan -no-color -var-file=terraform.tfvars -out=tfplan
-        continue-on-error: true
 
       - name: Upload tfplan artifact
         uses: actions/upload-artifact@v7
@@ -170,9 +169,3 @@ jobs:
         with:
           name: hosts
           path: ${{ env.WORK_DIR }}/artifacts/hosts.yml
-
-      - name: Upload artifact env psql
-        uses: actions/upload-artifact@v7
-        with:
-          name: env-psql
-          path: ${{ env.WORK_DIR }}/artifacts/.env.psql
