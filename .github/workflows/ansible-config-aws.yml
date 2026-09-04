@@ -10,6 +10,9 @@ env:
   PYTHON_VERSION: 3.14
   ANSIBLE_VERSION: 14.3.1
   WORK_DIR: ansible
+  AWS_REGION: eu-central-1
+  AWS_ROLE_ARN: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+  AWS_ROLE_SESSION_NAME: GitHub_to_AWS_via_FederatedOIDC
 
 jobs:
   ansible:
@@ -41,29 +44,41 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: terraform-vars
-          path: ansible/group_vars
+          path: ${{ env.WORK_DIR }}/group_vars
 
       - name: Validate Terraform variables
         run: |
-          test -f group_vars/terraform_vars.yml
+          test -f ${{ env.WORK_DIR }}/group_vars/terraform_vars.yml
 
       - name: Download artifact hosts
         uses: actions/download-artifact@v8
         with:
           name: hosts
-          path: ansible/inventory
-
-      - name: Download artifact psql
-        uses: actions/download-artifact@v8
-        with:
-          name: env-psql
-          path: ansible
+          path: ${{ env.WORK_DIR }}/inventory
 
       - name: Test Ansible host connectivity
         run: |
           ansible all \
             -i inventory/hosts.yml \
             -m ping
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-session-name: ${{ env.AWS_ROLE_SESSION_NAME }}
+
+      - name: Retrieve Ansible SSH key
+        env:
+          SECRET_ID: aws-iac-pipeline/dev/ansible-private-key
+        run: |
+          aws secretsmanager get-secret-value \
+            --secret-id ${SECRET_ID} \
+            --query SecretString \
+            --output text > ${{ env.WORK_DIR }}/keys/ansible-key.pem
+
+          chmod 600 ${{ env.WORK_DIR }}/keys/ansible-key.pem
 
       - name: Run playbook install postgresql
         run: |
@@ -80,3 +95,8 @@ jobs:
       - name: Run playbook configure airflow
         run: |
           ansible-playbook playbooks/configure-airflow.yml -i inventory/hosts.yml
+
+      - name: Remove Ansible SSH key
+        if: always()
+        run: |
+          rm -f ${{ env.WORK_DIR }}/keys/ansible-key.pem
