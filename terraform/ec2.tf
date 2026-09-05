@@ -11,7 +11,7 @@ resource "aws_instance" "dbserver" {
   subnet_id                   = aws_subnet.public_az_a.id
   vpc_security_group_ids      = [aws_security_group.dbserver.id]
   iam_instance_profile        = aws_iam_instance_profile.dbserver.id
-  key_name                    = aws_key_pair.ansible.key_name
+  key_name                    = var.key_name
   instance_type               = var.dbserver_instance_type
   associate_public_ip_address = true
   monitoring                  = true
@@ -43,7 +43,7 @@ resource "aws_instance" "appserver" {
   subnet_id                   = aws_subnet.public_az_a.id
   vpc_security_group_ids      = [aws_security_group.appserver.id]
   iam_instance_profile        = aws_iam_instance_profile.appserver.id
-  key_name                    = aws_key_pair.ansible.key_name
+  key_name                    = var.key_name
   instance_type               = var.appserver_instance_type
   associate_public_ip_address = true
   monitoring                  = true

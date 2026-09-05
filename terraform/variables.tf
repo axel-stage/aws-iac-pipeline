@@ -114,6 +114,10 @@ variable "appserver_instance_volume_size" {
   }
 }
 
+variable "key_name" {
+  description = "Name for key pair"
+  type        = string
+}
 
 ###############################################################################
 # s3
