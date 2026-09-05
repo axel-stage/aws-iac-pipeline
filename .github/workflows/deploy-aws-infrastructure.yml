@@ -205,10 +205,6 @@ jobs:
           name: terraform-vars
           path: ${{ env.ANSIBLE_DIR }}/group_vars
 
-      - name: Validate Terraform variables
-        run: |
-          ls ${{ env.ANSIBLE_DIR }}/group_vars
-
       - name: Download artifact hosts
         uses: actions/download-artifact@v8
         with:
