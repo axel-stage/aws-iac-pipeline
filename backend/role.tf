@@ -65,3 +65,8 @@ resource "aws_iam_role_policy_attachment" "github_cloudwatch" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
   role       = aws_iam_role.github_actions.name
 }
+
+resource "aws_iam_role_policy_attachment" "github_secretsmanager" {
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+  role       = aws_iam_role.github_actions.name
+}
