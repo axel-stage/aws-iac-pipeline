@@ -201,6 +201,7 @@ jobs:
       - name: Verify Ansible installation
         run: |
           ansible --version
+          cat ansible.cfg
 
       - name: Download artifact terraform
         uses: actions/download-artifact@v8
