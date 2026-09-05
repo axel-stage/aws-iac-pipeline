@@ -43,7 +43,7 @@ resource "aws_security_group" "dbserver" {
     from_port   = var.postgresql_port
     to_port     = var.postgresql_port
     protocol    = "tcp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   ingress {
@@ -51,7 +51,7 @@ resource "aws_security_group" "dbserver" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   ingress {
@@ -59,7 +59,7 @@ resource "aws_security_group" "dbserver" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   egress {
@@ -85,7 +85,7 @@ resource "aws_security_group" "appserver" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   ingress {
@@ -93,7 +93,7 @@ resource "aws_security_group" "appserver" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   ingress {
@@ -101,7 +101,7 @@ resource "aws_security_group" "appserver" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    cidr_blocks = ["0.0.0.0/0", "${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   egress {
