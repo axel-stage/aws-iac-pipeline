@@ -10,7 +10,7 @@ resource "local_file" "artifact_hosts" {
         ansible_user                 = var.ansible_user
         ansible_shell_type           = "sh"
         ansible_python_interpreter   = "/usr/bin/python3"
-        ansible_ssh_private_key_file = "ansible/keys/ansible-key.pem"
+        ansible_ssh_private_key_file = "keys/ansible-key.pem"
         ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
       }
       children = {
