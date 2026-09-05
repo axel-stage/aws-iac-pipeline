@@ -203,6 +203,10 @@ jobs:
           ansible --version
           cat ansible.cfg
 
+      - name: Show Ansible configuration
+        run: |
+          cat ansible.cfg
+
       - name: Download artifact terraform
         uses: actions/download-artifact@v8
         with:
@@ -241,19 +245,43 @@ jobs:
 
       - name: Run playbook install postgresql
         run: |
-          ansible-playbook playbooks/install-postgresql.yml -i inventory/hosts.yml
+          ansible-playbook playbooks/install-postgresql.yml \
+            -i inventory/hosts.yml \
+            -e "DB_PORT=${{ secrets.postgres_root.db_port }}"
 
       - name: Run playbook configure postgresql
+        env:
+          DB_ROOT_PASS: ${{ secrets.postgres_root.db_pass }}
         run: |
-          ansible-playbook playbooks/configure-postgresql.yml -i inventory/hosts.yml
+          ansible-playbook playbooks/configure-postgresql.yml \
+            -i inventory/hosts.yml \
+            -e "DB_ROOT_PASS=${DB_ROOT_PASS}" \
+            -e "DB_PORT=${{ secrets.postgres_root.db_port }}" \
+            -e "DB_ROOT_NAME=${{ secrets.postgres_root.db_name }}" \
+            -e "DB_ROOT_ROLE=${{ secrets.postgres_root.db_role }}"
 
       - name: Run playbook install airflow
         run: |
-          ansible-playbook playbooks/install-airflow.yml -i inventory/hosts.yml
+          ansible-playbook playbooks/install-airflow.yml \
+            -i inventory/hosts.yml \
+            -e "FERNET_KEY=${FERNET_KEY}" \
+            -e "JWT_SECRET=${JWT_SECRET}"
 
       - name: Run playbook configure airflow
+        env:
+          FERNET_KEY: ${{ secrets.fernet_key }}
+          JWT_SECRET: ${{ secrets.jwt_token }}
+          META_DB_PASS: ${{ secrets.airflow_meta.db_pass }}
         run: |
-          ansible-playbook playbooks/configure-airflow.yml -i inventory/hosts.yml
+          ansible-playbook playbooks/configure-airflow.yml \
+            -i inventory/hosts.yml \
+            -e "FERNET_KEY=${FERNET_KEY}" \
+            -e "JWT_SECRET=${JWT_SECRET}" \
+            -e "META_DB_PASS=${META_DB_PASS}" \
+            -e "DB_PORT=${{ secrets.postgres_root.db_port }}" \
+            -e "META_DB_NAME=${{ secrets.airflow_meta.db_name }}" \
+            -e "META_DB_ROLE=${{ secrets.airflow_meta.db_role }}" \
+            -e "META_DB_NAME=${{ secrets.airflow_meta.db_name }}"
 
       - name: Remove Ansible SSH key
         if: always()
