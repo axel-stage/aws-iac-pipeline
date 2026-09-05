@@ -225,6 +225,10 @@ jobs:
         env:
           SECRET_ID: aws-iac-pipeline/dev/ansible-private-key
         run: |
+          echo "PWD: $(pwd)"
+          echo "ANSIBLE_DIR: ${{ env.ANSIBLE_DIR }}"
+          ls -la ${{ env.ANSIBLE_DIR }}/keys
+
           aws secretsmanager get-secret-value \
             --secret-id ${SECRET_ID} \
             --query SecretString \
