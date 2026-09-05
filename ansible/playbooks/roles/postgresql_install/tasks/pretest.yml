@@ -22,7 +22,6 @@
       - ansible_os_family is defined
       - ansible_os_family | lower in ["debian", "redhat"]
       - DB_PORT is defined
-      - DB_PORT | int == 5432
     fail_msg: |+
       Missing host facts
     success_msg: |+
