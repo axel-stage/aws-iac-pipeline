@@ -6,6 +6,8 @@
   become_user: "{{ airflow_user }}"
   vars_files:
     - ../group_vars/terraform_vars.yml
+  vars:
+    db_host_private: "{{ hostvars[groups['dbserver'][0]]['private_ip'] }}"
   roles:
     - role: airflow_config
 ...

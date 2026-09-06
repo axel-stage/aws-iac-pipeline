@@ -17,7 +17,7 @@
   lineinfile:
     path: "{{ postgresql_config_dir }}/postgresql.conf"
     regexp: "^#?port\\s*="
-    line: "port = {{ DB_PORT }}"
+    line: "port = {{ postgres_root.db_port }}"
   notify: restart postgresql
 
 - name: Configure PostgreSQL max connections
@@ -45,7 +45,7 @@
 
 - name: Wait for PostgreSQL to accept connections
   wait_for:
-    port: "{{ DB_PORT }}"
+    port: "{{ postgres_root.db_port }}"
     host: localhost
     delay: 2
     timeout: 30

@@ -19,10 +19,7 @@
       - airflow_group | length > 0
       - airflow_home | length > 0
       - airflow_venv | length > 0
-      - DB_HOST_PRIVATE | length > 0
-      - META_DB_NAME | length > 0
-      - META_DB_ROLE | length > 0
-      - META_DB_PASS | length > 0
+      - db_host_private | length > 0
     fail_msg: "Required Airflow variables are missing or invalid."
 
 - name: Test PostgreSQL connectivity
@@ -42,11 +39,11 @@
       )
       conn.close()
   environment:
-    PGHOST: "{{ DB_HOST_PRIVATE }}"
-    PGDATABASE: "{{ META_DB_NAME }}"
-    PGUSER: "{{ META_DB_ROLE }}"
-    PGPASSWORD: "{{ META_DB_PASS }}"
-    PGPORT: "{{ DB_PORT }}"
+    PGHOST: "{{ db_host_private }}"
+    PGDATABASE: "{{ airflow_meta.db_name }}"
+    PGUSER: "{{ airflow_meta.db_role }}"
+    PGPASSWORD: "{{ airflow_meta.db_pass }}"
+    PGPORT: "{{ airflow_meta.db_port }}"
   register: postgres_connection
   changed_when: false
   no_log: true

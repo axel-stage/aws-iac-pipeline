@@ -29,6 +29,10 @@ env:
   PYTHON_VERSION: 3.14
   ANSIBLE_VERSION: 14.3.1
   ANSIBLE_DIR: ansible
+
+  PRIVATE_KEY_SECRET_NAME: aws-iac-pipeline/dev/ansible-private-key
+  DATABASES_SECRET_NAME: aws-iac-pipeline/dev/secret
+
   # tfvars
   # TF_VAR_aws_region: ${{ vars.AWS_REGION }}
   # TF_VAR_environment: ${{ vars.ENVIRONMENT }}
@@ -207,7 +211,7 @@ jobs:
         run: |
           cat ansible.cfg
 
-      - name: Download artifact terraform
+      - name: Download artifact Terraform
         uses: actions/download-artifact@v8
         with:
           name: terraform-vars
@@ -228,14 +232,25 @@ jobs:
 
       - name: Retrieve Ansible SSH key
         env:
-          SECRET_ID: aws-iac-pipeline/dev/ansible-private-key
+          SECRET_NAME: ${{ env.PRIVATE_KEY_SECRET_NAME }}
         run: |
           aws secretsmanager get-secret-value \
-            --secret-id ${SECRET_ID} \
+            --secret-id ${SECRET_NAME} \
             --query SecretString \
             --output text > keys/ansible-key.pem
 
           chmod 600 keys/ansible-key.pem
+
+      - name: Retrieve Ansible secrets file
+        env:
+          SECRET_NAME: ${{ env.DATABASES_SECRET_NAME }}
+        run: |
+          aws secretsmanager get-secret-value \
+            --secret-id ${SECRET_NAME} \
+            --query SecretString \
+            --output text > secrets/ansible-secrets.json
+
+          chmod 600 secrets/ansible-secrets.json
 
       - name: Test Ansible host connectivity
         run: |
@@ -243,47 +258,36 @@ jobs:
             -i inventory/hosts.yml \
             -m ping
 
-      - name: Run playbook install postgresql
+      - name: Run playbook install Postgresql
         run: |
           ansible-playbook playbooks/install-postgresql.yml \
             -i inventory/hosts.yml \
-            -e "DB_PORT=${{ secrets.postgres_root.db_port }}"
+            -e @secrets/ansible-secrets.json
 
-      - name: Run playbook configure postgresql
-        env:
-          DB_ROOT_PASS: ${{ secrets.postgres_root.db_pass }}
+      - name: Run playbook configure Postgresql
         run: |
           ansible-playbook playbooks/configure-postgresql.yml \
             -i inventory/hosts.yml \
-            -e "DB_ROOT_PASS=${DB_ROOT_PASS}" \
-            -e "DB_PORT=${{ secrets.postgres_root.db_port }}" \
-            -e "DB_ROOT_NAME=${{ secrets.postgres_root.db_name }}" \
-            -e "DB_ROOT_ROLE=${{ secrets.postgres_root.db_role }}"
+            -e @secrets/ansible-secrets.json
 
-      - name: Run playbook install airflow
+      - name: Run playbook install Airflow
         run: |
           ansible-playbook playbooks/install-airflow.yml \
             -i inventory/hosts.yml \
-            -e "FERNET_KEY=${FERNET_KEY}" \
-            -e "JWT_SECRET=${JWT_SECRET}"
+            -e @secrets/ansible-secrets.json
 
-      - name: Run playbook configure airflow
-        env:
-          FERNET_KEY: ${{ secrets.fernet_key }}
-          JWT_SECRET: ${{ secrets.jwt_token }}
-          META_DB_PASS: ${{ secrets.airflow_meta.db_pass }}
+      - name: Run playbook configure Airflow
         run: |
           ansible-playbook playbooks/configure-airflow.yml \
             -i inventory/hosts.yml \
-            -e "FERNET_KEY=${FERNET_KEY}" \
-            -e "JWT_SECRET=${JWT_SECRET}" \
-            -e "META_DB_PASS=${META_DB_PASS}" \
-            -e "DB_PORT=${{ secrets.postgres_root.db_port }}" \
-            -e "META_DB_NAME=${{ secrets.airflow_meta.db_name }}" \
-            -e "META_DB_ROLE=${{ secrets.airflow_meta.db_role }}" \
-            -e "META_DB_NAME=${{ secrets.airflow_meta.db_name }}"
+            -e @secrets/ansible-secrets.json
 
       - name: Remove Ansible SSH key
         if: always()
         run: |
           rm -f keys/ansible-key.pem
+
+      - name: Remove Ansible secrets file
+        if: always()
+        run: |
+          rm -f secrets/ansible-secrets.json
