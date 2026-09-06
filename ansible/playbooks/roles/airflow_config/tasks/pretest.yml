@@ -15,6 +15,11 @@
 - name: Validate Airflow variables
   ansible.builtin.assert:
     that:
+      - airflow_user is defined
+      - airflow_group is defined
+      - airflow_home is defined
+      - airflow_venv is defined
+      - db_host_private is defined
       - airflow_user | length > 0
       - airflow_group | length > 0
       - airflow_home | length > 0
@@ -46,7 +51,7 @@
     PGPORT: "{{ airflow_meta.db_port }}"
   register: postgres_connection
   changed_when: false
-  no_log: true
+  #no_log: true
 
 - name: Verify PostgreSQL connection
   ansible.builtin.assert:

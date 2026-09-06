@@ -8,3 +8,5 @@ airflow_group: airflow
 
 airflow_celery_concurrency: 2
 airflow_api_server_port: 8080
+
+db_host_private: "{{ hostvars[groups['dbserver'][0]]['private_ip'] }}"
