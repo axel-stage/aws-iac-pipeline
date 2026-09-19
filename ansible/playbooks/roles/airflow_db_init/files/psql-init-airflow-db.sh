@@ -1,0 +1,38 @@
+#!/bin/bash
+set -euo pipefail
+
+DB_HOST="${DB_HOST:?DB_HOST is required}"
+DB_PORT="${DB_PORT:-5432}"
+PGSSLMODE="${PGSSLMODE:-require}"
+
+psql --host ${DB_HOST} --port ${DB_PORT} --username ${ROOT_DB_ROLE} --dbname ${ROOT_DB_NAME} --no-password <<-EOSQL
+
+\conninfo
+\timing
+
+CREATE ROLE ${META_DB_ROLE} WITH
+    LOGIN
+    PASSWORD '${META_DB_PASS}'
+    NOCREATEDB
+    NOSUPERUSER
+    NOCREATEROLE
+    NOINHERIT
+    NOBYPASSRLS
+    NOREPLICATION
+    VALID UNTIL 'infinity'
+    CONNECTION LIMIT ${META_DB_CONN_LIMIT};
+
+CREATE DATABASE ${META_DB_NAME} WITH
+    OWNER ${META_DB_ROLE}
+    ENCODING='UTF8'
+    LC_COLLATE='en_US.UTF-8'
+    LC_CTYPE='en_US.UTF-8'
+    TEMPLATE template0;
+
+GRANT ALL PRIVILEGES ON DATABASE ${META_DB_NAME} TO ${META_DB_ROLE};
+GRANT ALL ON SCHEMA public TO ${META_DB_ROLE};
+
+SET search_path TO public;
+
+\q
+EOSQL

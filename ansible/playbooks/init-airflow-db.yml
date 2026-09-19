@@ -1,0 +1,10 @@
+# Initialize PostgreSQL
+---
+- name: Initialize Airflow DB
+  hosts: dbserver
+  vars_files:
+    - ../group_vars/terraform_vars.yml
+  become: true
+  roles:
+    - role: airflow_db_init
+...
