@@ -15,6 +15,23 @@ ansible --version
 ssh ubuntu@18.184.118.9 -i ansible/keys/ansible-key.pem
 
 
+SECRET_NAME=aws-iac-pipeline/dev/ansible-private-key
+HOST_PUBLIC_IP=63.185.78.218
+
+aws secretsmanager get-secret-value \
+  --secret-id ${SECRET_NAME} \
+  --query SecretString \
+  --output text > ansible/keys/ansible-key.pem
+
+chmod 600 ansible/keys/ansible-key.pem
+
+ssh ubuntu@${HOST_PUBLIC_IP} -i ansible/keys/ansible-key.pem
+
+sudo cat /opt/airflow/simple_auth_manager_passwords.json.generated
+
+rm ansible/keys/ansible-key.pem
+
+
 # inventory
 ###########
 # List all hosts in the inventory
