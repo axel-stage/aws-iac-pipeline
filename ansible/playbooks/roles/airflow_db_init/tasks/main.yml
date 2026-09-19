@@ -1,0 +1,39 @@
+# Airflow DB initialization
+---
+- name: Install required packages
+  ansible.builtin.package:
+    name:
+      - awscli
+      - jq
+      - postgresql-client
+    state: present
+
+- name: Copy Airflow DB init script
+  ansible.builtin.copy:
+    src: psql-init-airflow-db.sh
+    dest: /tmp/psql-init-airflow-db.sh
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Execute Airflow DB init script
+  ansible.builtin.command:
+    cmd: /tmp/psql-init-airflow-db.sh
+  environment:
+    DB_HOST: "{{ hostvars[groups['dbserver'][0]]['private_ip'] }}"
+    DB_PORT: "5432"
+    PGSSLMODE: "require"
+    ROOT_DB_ROLE: "{{ postgres_root.db_role }}"
+    ROOT_DB_NAME: "{{ postgres_root.db_name }}"
+    PGPASSWORD: "{{ postgres_root.db_pass }}"
+    META_DB_ROLE: "{{ airflow_meta.db_role }}"
+    META_DB_NAME: "{{ airflow_meta.db_name }}"
+    META_DB_PASS: "{{ airflow_meta.db_pass }}"
+    META_DB_CONN_LIMIT: "{{ airflow_meta.db_conn_limit }}"
+  no_log: true
+
+- name: Remove Airflow DB init script
+  ansible.builtin.file:
+    path: /tmp/psql-init-airflow-db.sh
+    state: absent
+...

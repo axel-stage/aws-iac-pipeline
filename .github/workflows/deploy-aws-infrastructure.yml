@@ -270,6 +270,12 @@ jobs:
             -i inventory/hosts.yml \
             -e @secrets/ansible-secrets.json
 
+      - name: Run playbook initialize Airflow DB
+        run: |
+          ansible-playbook playbooks/init-airflow-db.yml \
+            -i inventory/hosts.yml \
+            -e @secrets/ansible-secrets.json
+
       - name: Run playbook install Airflow
         run: |
           ansible-playbook playbooks/install-airflow.yml \
