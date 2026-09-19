@@ -1,4 +1,4 @@
-name: Terraform destroy AWS infrastructure
+name: Destroy AWS Infrastructure
 
 on:
   workflow_dispatch:

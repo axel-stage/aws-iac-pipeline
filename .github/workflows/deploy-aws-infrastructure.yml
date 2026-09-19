@@ -1,4 +1,4 @@
-name: Deploy AWS infrastructure
+name: Deploy AWS Infrastructure
 
 on:
   # push:
@@ -181,7 +181,7 @@ jobs:
           path: ${{ env.TERRAFORM_DIR }}/artifacts/hosts.yml
 
   ansible-configure:
-    name: Configure infrastructure
+    name: Ansible configure
     needs: terraform-apply
     runs-on: ubuntu-latest
     defaults:
