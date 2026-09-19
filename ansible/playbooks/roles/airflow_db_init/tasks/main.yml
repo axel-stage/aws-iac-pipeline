@@ -3,8 +3,6 @@
 - name: Install required packages
   ansible.builtin.package:
     name:
-      - awscli
-      - jq
       - postgresql-client
     state: present
 
