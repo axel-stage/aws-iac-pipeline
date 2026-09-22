@@ -258,35 +258,43 @@ jobs:
 
           chmod 600 secrets/ansible-secrets.json
 
-      - name: Config ssh
-        env:
-          BASTION_HOST: ${{ env.DATABASES_SECRET_NAME }}
+      - name: Config SSH
         run: |
-          echo $(pwd)
-
           mkdir -p ~/.ssh
 
-          cat <<-EOF >> ~/.ssh/config
+          cat > ~/.ssh/config <<EOF
           Host bastion
-          HostName ${{ needs.terraform-apply.outputs.bastion_host_eip }}
-          User ubuntu
-          IdentityFile /home/ubuntu/ansible/keys/ansible-key.pem
-          IdentitiesOnly yes
+            HostName ${{ needs.terraform-apply.outputs.bastion_host_eip }}
+            User ubuntu
+            IdentityFile $GITHUB_WORKSPACE/${{ env.ANSIBLE_DIR }}/keys/ansible-key.pem
+            IdentitiesOnly yes
 
           Host 10.10.*
-          User ubuntu
-          IdentityFile /home/ubuntu/ansible/keys/ansible-key.pem
-          IdentitiesOnly yes
-          ProxyJump bastion
+            User ubuntu
+            IdentityFile $GITHUB_WORKSPACE/${{ env.ANSIBLE_DIR }}/keys/ansible-key.pem
+            IdentitiesOnly yes
+            ProxyJump bastion
           EOF
 
           chmod 600 ~/.ssh/config
+          chmod 600 "$GITHUB_WORKSPACE/${{ env.ANSIBLE_DIR }}/keys/ansible-key.pem"
+
+          echo "SSH configuration:"
+          cat ~/.ssh/config
+
+      - name: Test bastion host SSH
+        run: |
+          ssh -vvv bastion 'echo "Bastion connection successful"'
 
       - name: Test Ansible host connectivity
         run: |
           ansible all \
             -i inventory/hosts.yml \
             -m ping
+
+      # - name: Test private SSH
+      #   run: |
+      #     ssh -vvv ubuntu@10.10.1.11 'echo "Private instance connection successful"'
 
       - name: Run playbook install Postgresql
         run: |
