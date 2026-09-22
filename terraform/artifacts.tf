@@ -20,8 +20,8 @@ resource "local_file" "artifact_hosts" {
               ansible_host = aws_instance.dbserver.private_ip
               instance_id  = aws_instance.dbserver.id
               # public_ip    = aws_instance.dbserver.public_ip
-              private_ip   = aws_instance.dbserver.private_ip
-              az           = aws_instance.dbserver.availability_zone
+              private_ip = aws_instance.dbserver.private_ip
+              az         = aws_instance.dbserver.availability_zone
             }
           }
         }
@@ -31,8 +31,8 @@ resource "local_file" "artifact_hosts" {
               ansible_host = aws_instance.appserver.private_ip
               instance_id  = aws_instance.appserver.id
               # public_ip    = aws_instance.appserver.public_ip
-              private_ip   = aws_instance.appserver.private_ip
-              az           = aws_instance.appserver.availability_zone
+              private_ip = aws_instance.appserver.private_ip
+              az         = aws_instance.appserver.availability_zone
             }
           }
         }
