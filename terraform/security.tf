@@ -49,10 +49,10 @@ resource "aws_security_group" "dbserver" {
   }
 
   ingress {
-    description = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
+    description     = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
+    from_port       = -1
+    to_port         = -1
+    protocol        = "icmp"
     security_groups = [aws_security_group.bastion.id]
   }
 
@@ -123,10 +123,10 @@ resource "aws_security_group" "appserver" {
   }
 
   ingress {
-    description = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
-    from_port   = -1
-    to_port     = -1
-    protocol    = "icmp"
+    description     = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
+    from_port       = -1
+    to_port         = -1
+    protocol        = "icmp"
     security_groups = [aws_security_group.bastion.id]
   }
 
