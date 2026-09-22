@@ -16,7 +16,7 @@ locals {
 # s3 bucket
 
 resource "aws_s3_bucket" "this" {
-  bucket        = "${var.project}-${var.environment}-${local.suffix}"
+  bucket        = "${local.name}-${local.suffix}"
   force_destroy = var.force_destroy_bucket
 }
 

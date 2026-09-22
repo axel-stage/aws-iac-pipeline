@@ -11,11 +11,11 @@ output "ec2_role_name" {
 }
 
 output "dbserver_ip" {
-  value = aws_instance.dbserver.public_ip
+  value = aws_instance.dbserver.private_ip
 }
 
 output "appserver_ip" {
-  value = aws_instance.appserver.public_ip
+  value = aws_instance.appserver.private_ip
 }
 
 output "local_public_ip" {

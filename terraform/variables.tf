@@ -3,22 +3,22 @@
 ###############################################################################
 # project
 
-variable "project" {
+variable "project_name" {
   description = "The Project name"
   type        = string
   validation {
-    condition     = can(regex("^[a-z0-9-]+$", var.project))
+    condition     = can(regex("^[a-z0-9-]+$", var.project_name))
     error_message = "Project name must contain only lowercase letters, numbers, and hyphens."
   }
 }
 
-variable "region" {
+variable "aws_region" {
   description = "Primary AWS region"
   type        = string
   default     = "eu-central-1"
 
   validation {
-    condition     = var.region == "eu-central-1"
+    condition     = var.aws_region == "eu-central-1"
     error_message = "region must be 'eu-central-1'"
   }
 }
@@ -159,4 +159,20 @@ variable "ansible_port" {
 variable "ansible_user" {
   description = "Name of the Ansible user"
   type        = string
+}
+
+
+###############################################################################
+# route53
+
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+  default     = "example.com"
+}
+
+variable "sub_domain_name" {
+  description = "Sub domain name"
+  type        = string
+  default     = "app.example.com"
 }

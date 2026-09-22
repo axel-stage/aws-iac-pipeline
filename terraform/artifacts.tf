@@ -11,15 +11,15 @@ resource "local_file" "artifact_hosts" {
         ansible_shell_type           = "sh"
         ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "keys/ansible-key.pem"
-        ansible_ssh_common_args      = "-o StrictHostKeyChecking=no"
+        ansible_ssh_common_args      = "-J ${var.ansible_user}@${aws_eip.bastion.public_ip} -o StrictHostKeyChecking=no"
       }
       children = {
         dbserver = {
           hosts = {
             (aws_instance.dbserver.tags.Name) = {
-              ansible_host = aws_instance.dbserver.public_ip
+              ansible_host = aws_instance.dbserver.private_ip
               instance_id  = aws_instance.dbserver.id
-              public_ip    = aws_instance.dbserver.public_ip
+              # public_ip    = aws_instance.dbserver.public_ip
               private_ip   = aws_instance.dbserver.private_ip
               az           = aws_instance.dbserver.availability_zone
             }
@@ -28,9 +28,9 @@ resource "local_file" "artifact_hosts" {
         appserver = {
           hosts = {
             (aws_instance.appserver.tags.Name) = {
-              ansible_host = aws_instance.appserver.public_ip
+              ansible_host = aws_instance.appserver.private_ip
               instance_id  = aws_instance.appserver.id
-              public_ip    = aws_instance.appserver.public_ip
+              # public_ip    = aws_instance.appserver.public_ip
               private_ip   = aws_instance.appserver.private_ip
               az           = aws_instance.appserver.availability_zone
             }
@@ -45,8 +45,8 @@ resource "local_file" "artifact_hosts" {
 resource "local_file" "artifact_terraform" {
   content  = <<-YAML
     terraform:
-      region: ${var.region}
-      project: ${var.project}
+      region: ${var.aws_region}
+      project: ${var.project_name}
       environment: ${var.environment}
       bucket_name: ${aws_s3_bucket.this.bucket}
       iac_provisioning: ${var.iac_provisioning}

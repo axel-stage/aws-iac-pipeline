@@ -1,14 +1,18 @@
 terraform {
-  required_version = "~> 1.15.8"
+  required_version = "~> 1.16"
 
-  backend "s3" {
-    # use values from backend/.env
-    bucket = "aws-iac-pipeline-terraform-backend"
-    key    = "infrastructure/terraform.tfstate"
-    region = "eu-central-1"
+  # backend "s3" {
+  #   # use values from backend/.env
+  #   bucket = "aws-iac-pipeline-terraform-backend"
+  #   key    = "infrastructure/terraform.tfstate"
+  #   region = "eu-central-1"
 
-    use_lockfile = true
-    encrypt      = true
+  #   use_lockfile = true
+  #   encrypt      = true
+  # }
+
+  backend "local" {
+    path = "backend/terraform.state"
   }
 
   required_providers {
@@ -32,13 +36,13 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region = var.aws_region
   # profile                  = "default"
   # shared_config_files      = ["/home/xl/.aws/config"]
   # shared_credentials_files = ["/home/xl/.aws/credentials"]
   default_tags {
     tags = {
-      Project     = var.project
+      Project     = var.project_name
       Environment = var.environment
       ProvisionBy = var.iac_provisioning
     }

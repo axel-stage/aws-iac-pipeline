@@ -1,5 +1,5 @@
 ###############################################################################
-# aws
+# data
 
 data "aws_region" "current" {}
 
@@ -7,6 +7,10 @@ data "aws_caller_identity" "current" {}
 
 data "aws_availability_zones" "available" {
   state = "available"
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
 }
 
 data "aws_ami" "amazon_linux" {
@@ -32,6 +36,11 @@ data "aws_ami" "ubuntu_noble_2404" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+}
+
+data "aws_route53_zone" "root" {
+  name         = var.domain_name
+  private_zone = false
 }
 
 ###############################################################################
