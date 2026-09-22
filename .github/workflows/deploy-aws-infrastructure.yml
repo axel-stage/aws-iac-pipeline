@@ -29,7 +29,6 @@ env:
   PYTHON_VERSION: 3.14
   ANSIBLE_VERSION: 14.3.1
   ANSIBLE_DIR: ansible
-
   PRIVATE_KEY_SECRET_NAME: aws-iac-pipeline/dev/ansible-private-key
   DATABASES_SECRET_NAME: aws-iac-pipeline/dev/secret
 
@@ -140,6 +139,8 @@ jobs:
     defaults:
       run:
         working-directory: ${{ env.TERRAFORM_DIR }}
+    outputs:
+      bastion_host_eip: ${{ steps.tf-output.outputs.bastion_host_eip }}
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
@@ -167,6 +168,11 @@ jobs:
 
       - name: Terraform apply
         run: terraform apply --auto-approve tfplan
+
+      - name: Get Bastion Host Elastic IP
+        id: tf-output
+        run: |
+          echo "bastion_host_eip=$(terraform output -raw bastion_host_eip)" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact terraform_vars
         uses: actions/upload-artifact@v7
@@ -251,6 +257,30 @@ jobs:
             --output text > secrets/ansible-secrets.json
 
           chmod 600 secrets/ansible-secrets.json
+
+      - name: Config ssh
+        env:
+          BASTION_HOST: ${{ env.DATABASES_SECRET_NAME }}
+        run: |
+          echo $(pwd)
+
+          mkdir -p ~/.ssh
+
+          cat <<-EOF >> ~/.ssh/config
+          Host bastion
+          HostName ${{ needs.terraform-apply.outputs.bastion_host_eip }}
+          User ubuntu
+          IdentityFile /home/ubuntu/ansible/keys/ansible-key.pem
+          IdentitiesOnly yes
+
+          Host 10.10.*
+          User ubuntu
+          IdentityFile /home/ubuntu/ansible/keys/ansible-key.pem
+          IdentitiesOnly yes
+          ProxyJump bastion
+          EOF
+
+          chmod 600 ~/.ssh/config
 
       - name: Test Ansible host connectivity
         run: |

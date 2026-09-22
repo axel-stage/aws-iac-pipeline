@@ -22,3 +22,8 @@ output "local_public_ip" {
   description = "Public IPv4 of the client"
   value       = data.external.local_public_ip.result.ipv4
 }
+
+output "bastion_host_eip" {
+  description = "Elastic IP of the bastion host"
+  value = aws_eip.bastion.public_ip
+}
