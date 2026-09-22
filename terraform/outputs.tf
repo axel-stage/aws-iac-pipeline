@@ -25,5 +25,5 @@ output "local_public_ip" {
 
 output "bastion_host_eip" {
   description = "Elastic IP of the bastion host"
-  value = aws_eip.bastion.public_ip
+  value       = aws_eip.bastion.public_ip
 }
