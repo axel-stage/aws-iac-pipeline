@@ -282,6 +282,9 @@ jobs:
           echo "SSH configuration:"
           cat ~/.ssh/config
 
+          ssh-keyscan -H "${{ needs.terraform-apply.outputs.bastion_host_eip }}" \
+            >> ~/.ssh/known_hosts
+
       - name: Test bastion host SSH
         run: |
           ssh -vvv bastion 'echo "Bastion connection successful"'
