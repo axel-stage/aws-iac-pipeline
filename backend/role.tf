@@ -70,3 +70,13 @@ resource "aws_iam_role_policy_attachment" "github_secretsmanager" {
   policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
   role       = aws_iam_role.github_actions.name
 }
+
+resource "aws_iam_role_policy_attachment" "github_route53" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
+  role       = aws_iam_role.github_actions.name
+}
+
+resource "aws_iam_role_policy_attachment" "github_acm" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess"
+  role       = aws_iam_role.github_actions.name
+}
