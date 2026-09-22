@@ -11,7 +11,9 @@ resource "local_file" "artifact_hosts" {
         ansible_shell_type           = "sh"
         ansible_python_interpreter   = "/usr/bin/python3"
         ansible_ssh_private_key_file = "keys/ansible-key.pem"
-        ansible_ssh_common_args      = "-J ${var.ansible_user}@${aws_eip.bastion.public_ip} -o StrictHostKeyChecking=no"
+        #ansible_ssh_common_args      = "-J ${var.ansible_user}@${aws_eip.bastion.public_ip} -o StrictHostKeyChecking=no"
+        #ansible_ssh_common_args      = "-o StrictHostKeyChecking=no -o ProxyCommand=\"ssh -W %h:%p -q ${var.ansible_user}@${aws_eip.bastion.public_ip}\""
+        ansible_ssh_common_args = "-o StrictHostKeyChecking=no -o ProxyJump=${var.ansible_user}@${aws_eip.bastion.public_ip}"
       }
       children = {
         dbserver = {

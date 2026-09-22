@@ -48,6 +48,14 @@ resource "aws_security_group" "dbserver" {
     security_groups = [aws_security_group.bastion.id]
   }
 
+  ingress {
+    description = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    security_groups = [aws_security_group.bastion.id]
+  }
+
   # ingress {
   #   description = "Allow PostgreSQL from NLB"
   #   protocol    = "tcp"
@@ -107,10 +115,18 @@ resource "aws_security_group" "appserver" {
   }
 
   ingress {
-    description     = "Allow SSH from NLB"
+    description     = "Allow SSH from Bastion Host"
     protocol        = "tcp"
     from_port       = var.ansible_port
     to_port         = var.ansible_port
+    security_groups = [aws_security_group.bastion.id]
+  }
+
+  ingress {
+    description = "Allow all ICMP (ping, traceroute, ...) from Bastion Host"
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
     security_groups = [aws_security_group.bastion.id]
   }
 
