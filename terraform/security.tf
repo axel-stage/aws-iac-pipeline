@@ -165,12 +165,13 @@ resource "aws_security_group" "bastion" {
   vpc_id      = aws_vpc.this.id
 
   ingress {
-    description = "Allow SSH from my IPv4"
+    description = "Allow SSH from All"
     protocol    = "tcp"
     from_port   = var.ansible_port
     to_port     = var.ansible_port
+    cidr_blocks = ["0.0.0.0/0"]
     #security_groups = [aws_security_group.nlb.id]
-    cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+    #cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
   }
 
   egress {
