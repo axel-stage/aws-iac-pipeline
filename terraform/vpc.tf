@@ -77,7 +77,7 @@ resource "aws_subnet" "private_az_a" {
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "${local.name}-subnet-public-${local.az_a}"
+    Name = "${local.name}-subnet-private-${local.az_a}"
   }
 }
 
@@ -275,7 +275,7 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_id       = aws_vpc.this.id
   service_name = "com.amazonaws.${data.aws_region.current.region}.s3"
 
-  route_table_ids = [aws_route_table.public.id]
+  route_table_ids = [aws_route_table.private.id]
 
   tags = {
     Name = "${local.name}-s3-vpc-endpoint"
