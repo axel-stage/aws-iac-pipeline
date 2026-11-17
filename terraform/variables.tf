@@ -67,6 +67,22 @@ variable "public_subnets" {
   type        = list(string)
 }
 
+variable "admin_cidrs" {
+  description = "CIDR blocks allowed to SSH to the bastion host"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for c in var.admin_cidrs : can(cidrhost(c, 0))])
+    error_message = "admin_cidrs must contain valid CIDR blocks."
+  }
+
+  validation {
+    condition     = !contains(var.admin_cidrs, "0.0.0.0/0")
+    error_message = "admin_cidrs must not contain 0.0.0.0/0."
+  }
+}
+
 ###############################################################################
 # ec2
 

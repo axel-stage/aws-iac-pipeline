@@ -20,6 +20,11 @@ permissions:
   contents: read
   pull-requests: write
 
+# avoid parallel runs
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   TF_VERSION: 1.15.8
   AWS_REGION: eu-central-1
@@ -141,6 +146,7 @@ jobs:
         working-directory: ${{ env.TERRAFORM_DIR }}
     outputs:
       bastion_host_eip: ${{ steps.tf-output.outputs.bastion_host_eip }}
+      bastion_sg_id: ${{ steps.tf-output.outputs.bastion_sg_id }}
     steps:
       - name: GIT clone repository
         uses: actions/checkout@v6
@@ -169,10 +175,11 @@ jobs:
       - name: Terraform apply
         run: terraform apply --auto-approve tfplan
 
-      - name: Get Bastion Host Elastic IP
+      - name: Get Bastion Host Elastic IP and Security Group ID
         id: tf-output
         run: |
           echo "bastion_host_eip=$(terraform output -raw bastion_host_eip)" >> "$GITHUB_OUTPUT"
+          echo "bastion_sg_id=$(terraform output -raw bastion_sg_id)" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact terraform_vars
         uses: actions/upload-artifact@v7
@@ -236,6 +243,19 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           role-session-name: ${{ env.AWS_ROLE_SESSION_NAME }}
 
+      - name: Allow runner IP on bastion SG
+        id: runner-ip
+        env:
+          SG_ID: ${{ needs.terraform-apply.outputs.bastion_sg_id }}
+          SSH_PORT: 22
+        run: |
+          RUNNER_IP=$(curl -sf https://checkip.amazonaws.com)
+          echo "cidr=${RUNNER_IP}/32" >> "$GITHUB_OUTPUT"
+
+          aws ec2 authorize-security-group-ingress \
+            --group-id "${SG_ID}" \
+            --ip-permissions "IpProtocol=tcp,FromPort=${SSH_PORT},ToPort=${SSH_PORT},IpRanges=[{CidrIp=${RUNNER_IP}/32,Description=github-actions-run-${{ github.run_id }}}]"
+
       - name: Retrieve Ansible SSH key
         env:
           SECRET_NAME: ${{ env.PRIVATE_KEY_SECRET_NAME }}
@@ -295,10 +315,6 @@ jobs:
             -i inventory/hosts.yml \
             -m ping
 
-      # - name: Test private SSH
-      #   run: |
-      #     ssh -vvv ubuntu@10.10.1.11 'echo "Private instance connection successful"'
-
       - name: Run playbook install Postgresql
         run: |
           ansible-playbook playbooks/install-postgresql.yml \
@@ -328,6 +344,17 @@ jobs:
           ansible-playbook playbooks/configure-airflow.yml \
             -i inventory/hosts.yml \
             -e @secrets/ansible-secrets.json
+
+      - name: Revoke runner IP on bastion SG
+        if: always() && steps.runner-ip.outputs.cidr != ''
+        env:
+          SG_ID: ${{ needs.terraform-apply.outputs.bastion_sg_id }}
+          SSH_PORT: 22
+          CIDR: ${{ steps.runner-ip.outputs.cidr }}
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id "${SG_ID}" \
+            --protocol tcp --port "${SSH_PORT}" --cidr "${CIDR}"
 
       - name: Remove Ansible SSH key
         if: always()

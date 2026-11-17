@@ -23,7 +23,7 @@ resource "aws_instance" "bastion" {
 
   lifecycle {
     prevent_destroy = false
-    ignore_changes = [ami]
+    ignore_changes  = [ami]
   }
 
   tags = {
@@ -53,8 +53,8 @@ resource "aws_instance" "dbserver" {
   # It helps reduce abuse of metadata access (for example, SSRF-style attacks)
   # by making the metadata retrieval flow stateful instead of simple unauthenticated requests.
   metadata_options {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
+    http_endpoint = "enabled"
+    http_tokens   = "required"
   }
 
   root_block_device {
@@ -67,7 +67,7 @@ resource "aws_instance" "dbserver" {
 
   lifecycle {
     prevent_destroy = local.is_prod
-    ignore_changes = [ami]
+    ignore_changes  = [ami]
   }
 
   tags = {
@@ -107,7 +107,7 @@ resource "aws_instance" "appserver" {
 
   lifecycle {
     prevent_destroy = local.is_prod
-    ignore_changes = [ami]
+    ignore_changes  = [ami]
   }
 
   tags = {

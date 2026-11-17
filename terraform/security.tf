@@ -2,8 +2,8 @@
 # kms
 
 resource "aws_kms_key" "this" {
-  description = "Encryption key for EBS"
-  enable_key_rotation = true
+  description             = "Encryption key for EBS"
+  enable_key_rotation     = true
   rotation_period_in_days = 365
   deletion_window_in_days = 30
 
@@ -13,7 +13,7 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
-  name = "alias/${local.name}"
+  name          = "alias/${local.name}"
   target_key_id = aws_kms_key.this.key_id
 }
 
@@ -183,14 +183,15 @@ resource "aws_security_group" "bastion" {
   description = "Security group for bastion host"
   vpc_id      = aws_vpc.this.id
 
-  ingress {
-    description = "Allow SSH from All"
-    protocol    = "tcp"
-    from_port   = var.ansible_port
-    to_port     = var.ansible_port
-    cidr_blocks = ["0.0.0.0/0"]
-    #security_groups = [aws_security_group.nlb.id]
-    #cidr_blocks = ["${data.external.local_public_ip.result.ipv4}/32"]
+  dynamic "ingress" {
+    for_each = length(var.admin_cidrs) > 0 ? [1] : []
+    content {
+      description = "Allow SSH from admin cidrs"
+      protocol    = "tcp"
+      from_port   = var.ansible_port
+      to_port     = var.ansible_port
+      cidr_blocks = var.admin_cidrs
+    }
   }
 
   egress {
