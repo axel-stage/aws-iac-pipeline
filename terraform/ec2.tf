@@ -66,7 +66,7 @@ resource "aws_instance" "dbserver" {
   }
 
   lifecycle {
-    prevent_destroy = local.is_prod
+    prevent_destroy = false
     ignore_changes  = [ami]
   }
 
@@ -106,7 +106,7 @@ resource "aws_instance" "appserver" {
   }
 
   lifecycle {
-    prevent_destroy = local.is_prod
+    prevent_destroy = false
     ignore_changes  = [ami]
   }
 
