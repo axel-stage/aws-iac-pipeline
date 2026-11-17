@@ -119,6 +119,11 @@ variable "key_name" {
   type        = string
 }
 
+variable "dbserver_termination_protection" {
+  description = "Enable EC2 API termination protection on the DB server"
+  type        = bool
+  default     = true
+}
 ###############################################################################
 # s3
 

@@ -54,5 +54,12 @@ jobs:
           ${{ secrets.TFVARS }}
           EOF
 
+      - name: Disable termination protection
+        run: |
+          terraform apply \
+            --auto-approve \
+            -target=aws_instance.dbserver \
+            -var="dbserver_termination_protection=false"
+
       - name: Terraform destroy
         run: terraform destroy --auto-approve

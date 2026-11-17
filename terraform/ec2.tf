@@ -16,8 +16,14 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = false
   monitoring                  = false
 
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [ami]
   }
 
   tags = {
@@ -40,15 +46,26 @@ resource "aws_instance" "dbserver" {
   instance_type               = var.dbserver_instance_type
   associate_public_ip_address = false
   monitoring                  = true
+  disable_api_termination     = var.dbserver_termination_protection
+
+  # IMDSv2 is AWS’s hardened Instance Metadata Service for EC2
+  # that requires a session token before you can read instance metadata.
+  # It helps reduce abuse of metadata access (for example, SSRF-style attacks)
+  # by making the metadata retrieval flow stateful instead of simple unauthenticated requests.
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+  }
 
   root_block_device {
     volume_size           = var.dbserver_instance_volume_size
     volume_type           = "gp3"
-    delete_on_termination = true
+    delete_on_termination = local.delete_on_termination
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = local.is_prod
+    ignore_changes = [ami]
   }
 
   tags = {
@@ -76,11 +93,17 @@ resource "aws_instance" "appserver" {
   root_block_device {
     volume_size           = var.appserver_instance_volume_size
     volume_type           = "gp3"
-    delete_on_termination = true
+    delete_on_termination = local.delete_on_termination
+  }
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = local.is_prod
+    ignore_changes = [ami]
   }
 
   tags = {

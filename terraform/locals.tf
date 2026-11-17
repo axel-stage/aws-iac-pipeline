@@ -8,4 +8,6 @@ locals {
   az_b = element(data.aws_availability_zones.available.names, 1)
 
   subnets = cidrsubnets(var.vpc_cidr_block, 8, 8)
+
+  delete_on_termination = var.environment != "prod"
 }
