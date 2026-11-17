@@ -37,6 +37,46 @@ data "aws_iam_policy_document" "github_trust" {
   }
 }
 
+data "aws_iam_policy_document" "github_kms" {
+  statement {
+    sid = "ManageKeys"
+    actions = [
+      "kms:CreateKey",
+      "kms:CreateAlias",
+      "kms:DeleteAlias",
+      "kms:UpdateAlias",
+      "kms:ListAliases",
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:PutKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:EnableKeyRotation",
+      "kms:ListResourceTags",
+      "kms:TagResource",
+      "kms:UntagResource",
+      "kms:ScheduleKeyDeletion",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "UseKeysForEbs"
+    actions = [
+      "kms:CreateGrant",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+    ]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "kms:ViaService"
+      values   = ["ec2.${var.region}.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "github_actions" {
   name               = "${var.project}-github-actions-role"
   assume_role_policy = data.aws_iam_policy_document.github_trust.json
@@ -44,6 +84,12 @@ resource "aws_iam_role" "github_actions" {
   tags = {
     Description = "GitHub Actions deployment role"
   }
+}
+
+resource "aws_iam_role_policy" "github_kms" {
+  name   = "${var.project}-github-kms"
+  role   = aws_iam_role.github_actions.id
+  policy = data.aws_iam_policy_document.github_kms.json
 }
 
 resource "aws_iam_role_policy_attachment" "github_iam" {

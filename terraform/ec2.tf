@@ -61,6 +61,8 @@ resource "aws_instance" "dbserver" {
     volume_size           = var.dbserver_instance_volume_size
     volume_type           = "gp3"
     delete_on_termination = local.delete_on_termination
+    encrypted             = true
+    kms_key_id            = aws_kms_key.this.arn
   }
 
   lifecycle {
@@ -94,6 +96,8 @@ resource "aws_instance" "appserver" {
     volume_size           = var.appserver_instance_volume_size
     volume_type           = "gp3"
     delete_on_termination = local.delete_on_termination
+    encrypted             = true
+    kms_key_id            = aws_kms_key.this.arn
   }
 
   metadata_options {

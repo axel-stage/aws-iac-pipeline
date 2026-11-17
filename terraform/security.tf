@@ -1,4 +1,23 @@
 ###############################################################################
+# kms
+
+resource "aws_kms_key" "this" {
+  description = "Encryption key for EBS"
+  enable_key_rotation = true
+  rotation_period_in_days = 365
+  deletion_window_in_days = 30
+
+  tags = {
+    Name = "${local.name}-kms-key"
+  }
+}
+
+resource "aws_kms_alias" "this" {
+  name = "alias/${local.name}"
+  target_key_id = aws_kms_key.this.key_id
+}
+
+###############################################################################
 # security groups
 
 resource "aws_default_security_group" "default" {
