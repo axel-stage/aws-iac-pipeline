@@ -1,0 +1,13 @@
+---
+- name: Get agent status
+  ansible.builtin.command: "{{ cloudwatch_agent_home }}/bin/amazon-cloudwatch-agent-ctl -a status"
+  register: cloudwatch_agent_status
+  changed_when: false
+
+- name: Assert agent is running
+  ansible.builtin.assert:
+    that:
+      - (cloudwatch_agent_status.stdout | from_json).status == "running"
+      - (cloudwatch_agent_status.stdout | from_json).configstatus == "configured"
+    fail_msg: "CloudWatch agent is not running: {{ cloudwatch_agent_status.stdout }}"
+...

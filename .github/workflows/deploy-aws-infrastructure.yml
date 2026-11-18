@@ -345,6 +345,12 @@ jobs:
             -i inventory/hosts.yml \
             -e @secrets/ansible-secrets.json
 
+      - name: Run playbook configure monitoring
+        run: |
+          ansible-playbook playbooks/configure-monitoring.yml \
+            -i inventory/hosts.yml \
+            -e @secrets/ansible-secrets.json
+
       - name: Revoke runner IP on bastion SG
         if: always() && steps.runner-ip.outputs.cidr != ''
         env:

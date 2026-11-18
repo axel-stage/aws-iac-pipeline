@@ -1,0 +1,52 @@
+{
+  "agent": {
+    "metrics_collection_interval": {{ cloudwatch_agent_interval }},
+    "run_as_user": "cwagent",
+    "region": "{{ cloudwatch_agent_region }}",
+    "omit_hostname": true
+  },
+  "metrics": {
+    "namespace": "CWAgent",
+    "append_dimensions": {
+      "InstanceId": "${aws:InstanceId}"
+    },
+    "metrics_collected": {
+      "cpu": {
+        "totalcpu": true,
+        "measurement": ["usage_user", "usage_system", "usage_iowait", "usage_steal"]
+      },
+      "mem": {
+        "measurement": ["used_percent", "available_percent"]
+      },
+      "swap": {
+        "measurement": ["used_percent"]
+      },
+      "disk": {
+        "resources": ["/"],
+        "measurement": ["used_percent", "inodes_free"],
+        "drop_device": true
+      },
+      "netstat": {
+        "measurement": ["tcp_established"]
+      },
+      "processes": {
+        "measurement": ["blocked"]
+      },
+      "procstat": [
+{% if 'dbserver' in group_names %}
+        {
+          "exe": "postgres",
+          "measurement": ["pid_count"]
+        }
+{% elif 'appserver' in group_names %}
+{% for pattern in cloudwatch_agent_airflow_patterns %}
+        {
+          "pattern": "{{ pattern }}",
+          "measurement": ["pid_count"]
+        }{{ "," if not loop.last else "" }}
+{% endfor %}
+{% endif %}
+      ]
+    }
+  }
+}

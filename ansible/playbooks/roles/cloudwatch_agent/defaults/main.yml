@@ -1,0 +1,16 @@
+---
+cloudwatch_agent_region: "{{ terraform.region }}"
+cloudwatch_agent_deb_url: "https://amazoncloudwatch-agent-{{ cloudwatch_agent_region }}.s3.{{ cloudwatch_agent_region }}.amazonaws.com/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb"
+cloudwatch_agent_home: /opt/aws/amazon-cloudwatch-agent
+cloudwatch_agent_config: "{{ cloudwatch_agent_home }}/etc/cwagent-config.json"
+cloudwatch_agent_interval: 60
+
+# appserver: one procstat entry per Airflow component (matches the ExecStart lines
+# in roles/airflow_config/templates/*.service.j2)
+cloudwatch_agent_airflow_patterns:
+  - "airflow scheduler"
+  - "airflow api-server"
+  - "airflow dag-processor"
+  - "airflow triggerer"
+  - "airflow celery worker"
+...

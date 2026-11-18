@@ -1,0 +1,8 @@
+---
+- name: Restart cloudwatch agent
+  ansible.builtin.command: >
+    {{ cloudwatch_agent_home }}/bin/amazon-cloudwatch-agent-ctl
+    -a fetch-config -m ec2 -s
+    -c file:{{ cloudwatch_agent_config }}
+  changed_when: true
+...

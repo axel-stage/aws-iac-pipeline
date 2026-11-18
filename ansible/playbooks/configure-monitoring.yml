@@ -1,0 +1,10 @@
+# Install and configure the CloudWatch agent (metrics)
+---
+- name: Configure CloudWatch agent
+  hosts: dbserver:appserver
+  vars_files:
+    - ../group_vars/terraform_vars.yml
+  become: true
+  roles:
+    - role: cloudwatch_agent
+...
