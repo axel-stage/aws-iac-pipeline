@@ -34,10 +34,10 @@ resource "aws_iam_role_policy_attachment" "ec2_s3_read" {
 # cloudwatch agent
 
 data "aws_iam_policy_document" "cloudwatch_agent" {
-    statement {
-      sid       = "PutMetrics"
-      actions   = ["cloudwatch:PutMetricData"]
-      resources = ["*"] # PutMetricData does not support resource-level permissions
+  statement {
+    sid       = "PutMetrics"
+    actions   = ["cloudwatch:PutMetricData"]
+    resources = ["*"] # PutMetricData does not support resource-level permissions
 
     condition {
       test     = "StringEquals"
@@ -48,7 +48,7 @@ data "aws_iam_policy_document" "cloudwatch_agent" {
 }
 
 resource "aws_iam_policy" "cloudwatch_agent" {
-  name = "${local.name}-cloudwatch-agent"
+  name   = "${local.name}-cloudwatch-agent"
   policy = aws_iam_policy_document.cloudwatch_agent.json
 }
 
