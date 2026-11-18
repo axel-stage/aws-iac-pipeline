@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "cloudwatch_agent" {
 
 resource "aws_iam_policy" "cloudwatch_agent" {
   name   = "${local.name}-cloudwatch-agent"
-  policy = aws_iam_policy_document.cloudwatch_agent.json
+  policy = data.aws_iam_policy_document.cloudwatch_agent.json
 }
 
 resource "aws_iam_role_policy_attachment" "ec2_cloudwatch_agent" {
