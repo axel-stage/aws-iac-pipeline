@@ -11,7 +11,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: restart cloudwatch agent
+  notify: Restart cloudwatch agent
 
 - name: Apply agent configuration
   ansible.builtin.meta: flush_handlers
