@@ -205,7 +205,7 @@ variable "sub_domain_name" {
 
 variable "log_retention_days" {
   description = "Retention poriod for the log files in days"
-  type        = integer
+  type        = number
   default     = 30
 
   validation {
